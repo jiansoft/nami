@@ -29,15 +29,10 @@ namespace jIAnSoft.Framework.Nami.Core
         /// </summary>
         public IDisposable Schedule(Action action, long firstInMs)
         {
-            if (firstInMs <= 0)
-            {
-                var pending = new PendingAction(action);
-                _executionContext.Enqueue(pending.Execute);
-                return pending;
-            }
-//                var pending = new TimerAction(this, action, firstInMs, Timeout.Infinite);
-//                AddPending(pending);
-            return ScheduleOnInterval(action, firstInMs, Timeout.Infinite);
+            if (firstInMs > 0) return ScheduleOnInterval(action, firstInMs, Timeout.Infinite);
+            var pending = new PendingAction(action);
+            _executionContext.Enqueue(pending.Execute);
+            return pending;
         }
 
         /// <inheritdoc />

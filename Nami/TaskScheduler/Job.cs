@@ -210,8 +210,6 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
 
         public void Dispose()
         {
-            _fiber?.Dispose();
-            _fiber = null;
             _taskDisposer?.Dispose();
             _task = null;
         }

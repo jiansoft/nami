@@ -172,6 +172,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
             _subscriptions.Dispose();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Stops the fiber.
         /// </summary>
