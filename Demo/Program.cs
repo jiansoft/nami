@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Linq;
 using jIAnSoft.Framework.Nami.Fibers;
 using jIAnSoft.Framework.Nami.TaskScheduler;
 
 namespace Demo
 {
-    static class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             IFiber pool = new PoolFiber();
             IFiber thread = new ThreadFiber();

@@ -14,7 +14,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
         private readonly object _lock = new object();
         private readonly IThreadPool _pool;
         private readonly Scheduler _scheduler;
-        private readonly IExecutor _executor;
+        //private readonly IExecutor _executor;
         private readonly IQueue _queue;
 
         private ExecutionState _started = ExecutionState.Created;
@@ -30,7 +30,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
             _queue = new NewDefaultQueue();
             _scheduler = new Scheduler(this);
             _pool = pool;
-            _executor = executor;
+           // _executor = executor;
         }
 
         /// <inheritdoc />
@@ -106,7 +106,12 @@ namespace jIAnSoft.Framework.Nami.Fibers
         {
             var toExecute = _queue.DequeueAll();
             if (toExecute == null) return;
-            _executor.Execute(toExecute);
+            //_executor.Execute(toExecute);
+            foreach (var ac in toExecute)
+            {
+                _pool.Queue(ac);
+            }
+
             lock (_lock)
             {
                 if (_queue.Count() > 0)

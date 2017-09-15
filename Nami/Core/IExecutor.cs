@@ -12,7 +12,7 @@ namespace jIAnSoft.Framework.Nami.Core
         /// Executes all actions.
         /// </summary>
         /// <param name="toExecute"></param>
-        void Execute(List<Action> toExecute);
+        void Execute(IEnumerable<Action> toExecute);
 
         ///<summary>
         /// Executes a single action. 

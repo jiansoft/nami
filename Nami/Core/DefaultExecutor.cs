@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace jIAnSoft.Framework.Nami.Core
 {
+    /// <inheritdoc />
     /// <summary>
     /// Default executor.
     /// </summary>
@@ -10,11 +11,12 @@ namespace jIAnSoft.Framework.Nami.Core
     {
         private bool _running = true;
 
+        /// <inheritdoc />
         /// <summary>
         /// Executes all actions.
         /// </summary>
         /// <param name="toExecute"></param>
-        public void Execute(List<Action> toExecute)
+        public void Execute(IEnumerable<Action> toExecute)
         {
             foreach (var action in toExecute)
             {
@@ -22,10 +24,11 @@ namespace jIAnSoft.Framework.Nami.Core
             }
         }
 
-        ///<summary>
-        /// Executes a single action. 
-        ///</summary>
-        ///<param name="toExecute"></param>
+        /// <inheritdoc />
+        /// <summary>
+        ///  Executes a single action. 
+        /// </summary>
+        /// <param name="toExecute"></param>
         public void Execute(Action toExecute)
         {
             if (_running)
@@ -40,8 +43,8 @@ namespace jIAnSoft.Framework.Nami.Core
         /// </summary>
         public bool IsEnabled
         {
-            get { return _running; }
-            set { _running = value; }
+            get => _running;
+            set => _running = value;
         }
     }
 }

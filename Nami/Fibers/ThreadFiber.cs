@@ -25,18 +25,20 @@ namespace jIAnSoft.Framework.Nami.Fibers
         /// <summary>
         /// Create a thread fiber with the default queue.
         /// </summary>
-        public ThreadFiber() 
+        public ThreadFiber()
             : this(new NewDefaultQueue())
-        {}
+        {
+        }
 
         /// <inheritdoc />
         /// <summary>
         /// Creates a thread fiber with a specified queue.
         /// </summary>
         /// <param name="queue"></param>
-        public ThreadFiber(IQueue queue) 
+        public ThreadFiber(IQueue queue)
             : this(queue, "ThreadFiber-" + GetNextThreadId())
-        {}
+        {
+        }
 
         /// <inheritdoc />
         /// <summary>
@@ -45,7 +47,8 @@ namespace jIAnSoft.Framework.Nami.Fibers
         /// /// <param name="threadName"></param>
         public ThreadFiber(string threadName)
             : this(new NewDefaultQueue(), threadName)
-        {}
+        {
+        }
 
 
         /// <summary>
@@ -87,7 +90,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
         /// <returns></returns>
         private bool ExecuteNextBatch()
         {
-            var toExecute =DequeueAll();
+            var toExecute = DequeueAll();
             if (toExecute == null)
             {
                 return false;
@@ -95,6 +98,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
             _executor.Execute(toExecute);
             return true;
         }
+
         private List<Action> DequeueAll()
         {
             lock (_lock)

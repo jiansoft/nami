@@ -27,7 +27,7 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
         private int _second;
         private Unit _unit;
         private readonly int _interval;
-        private DayOfWeek _weekday;
+        private readonly DayOfWeek _weekday;
         private DateTime _nextRunTime;
         private IDisposable _taskDisposer;
 
@@ -169,7 +169,7 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
 
         private void CanDo()
         {
-            if (DateTime.Now > _nextRunTime)
+            if (DateTime.Now >= _nextRunTime)
             {
                 _fiber.Enqueue(_task);
                 switch (_unit)
@@ -210,6 +210,7 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
 
         public void Dispose()
         {
+            _fiber = null;
             _taskDisposer?.Dispose();
             _task = null;
         }
