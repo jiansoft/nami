@@ -120,7 +120,7 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
                         {
                             _nextRunTime = _nextRunTime.AddDays(_interval - 1);
                         }
-                        if (now < _nextRunTime)
+                        if (_nextRunTime < now)
                         {
                             _nextRunTime = _nextRunTime.AddDays(_interval);
                         }
@@ -203,7 +203,6 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
             if (adjustTime < 1)
             {
                 adjustTime = 1;
-
             }
             _taskDisposer = _fiber.Schedule(CanDo, adjustTime);
         }
