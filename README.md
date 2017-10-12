@@ -1,7 +1,7 @@
 # nami
 
 Nami is a high performance C# threading library.
-This project fork from retlang(<https://code.google.com/archive/p/retlang/>).
+This project fork from [retlang](<https://code.google.com/archive/p/retlang/>).
 
 ### Features
 
@@ -29,8 +29,11 @@ using jIAnSoft.Framework.Nami.TaskScheduler;
             IFiber thread = new ThreadFiber();
             pool.Start();
             thread.Start();
-            pool.ScheduleOnInterval(() => { PrintData("pool  ", DateTime.Now); }, 0, 150000);
-            var td = thread.ScheduleOnInterval(() => { PrintData("thread", DateTime.Now); }, 0, 150000);
+            //After 1 second execute first and every 15 second execute once. 
+            pool.ScheduleOnInterval(() => { PrintData("pool  ", DateTime.Now); }, 1000, 15000);
+            //After 0 second execute first and every 15 second execute once. 
+            var td = thread.ScheduleOnInterval(() => { PrintData("thread", DateTime.Now); }, 0, 15000);
+            //After 2 second cancel the td schedule
             pool.Schedule(() =>
             {
                 Console.WriteLine($"td Dispose");
