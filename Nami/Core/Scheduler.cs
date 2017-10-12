@@ -3,6 +3,7 @@ using System.Threading;
 
 namespace jIAnSoft.Framework.Nami.Core
 {
+    /// <inheritdoc cref="ISchedulerRegistry" />
     /// <summary>
     ///  Enqueues actions on to context after schedule elapses.  
     /// </summary>
@@ -10,7 +11,7 @@ namespace jIAnSoft.Framework.Nami.Core
     {
         private volatile bool _running = true;
 
-        private readonly IExecutionContext _executionContext;
+        private readonly IExecutionContext _fiber;
 
         //private List<IDisposable> _pending = new List<IDisposable>();
         private readonly Subscriptions _disposabler = new Subscriptions();
@@ -18,9 +19,9 @@ namespace jIAnSoft.Framework.Nami.Core
         ///<summary>
         /// Constructs new instance.
         ///</summary>
-        public Scheduler(IExecutionContext executionContext)
+        public Scheduler(IExecutionContext fiber)
         {
-            _executionContext = executionContext;
+            _fiber = fiber;
         }
 
         /// <inheritdoc />
@@ -29,9 +30,12 @@ namespace jIAnSoft.Framework.Nami.Core
         /// </summary>
         public IDisposable Schedule(Action action, long firstInMs)
         {
-            if (firstInMs > 0) return ScheduleOnInterval(action, firstInMs, Timeout.Infinite);
+            if (firstInMs > 0)
+            {
+                return ScheduleOnInterval(action, firstInMs, Timeout.Infinite);
+            }
             var pending = new PendingAction(action);
-            _executionContext.Enqueue(pending.Execute);
+            _fiber.Enqueue(pending.Execute);
             return pending;
         }
 
@@ -53,7 +57,7 @@ namespace jIAnSoft.Framework.Nami.Core
         /// <param name="toRemove"></param>
         public void Remove(IDisposable toRemove)
         {
-            _executionContext.Enqueue(() => _disposabler.Remove(toRemove));
+            _fiber.Enqueue(() => _disposabler.Remove(toRemove));
         }
 
         /// <inheritdoc />
@@ -63,12 +67,12 @@ namespace jIAnSoft.Framework.Nami.Core
         /// <param name="action"></param>
         public void Enqueue(Action action)
         {
-            _executionContext.Enqueue(action);
+            _fiber.Enqueue(action);
         }
 
         private void AddPending(TimerAction pending)
         {
-            _executionContext.Enqueue(() =>
+            _fiber.Enqueue(() =>
             {
                 if (!_running) return;
                 _disposabler.Add(pending);

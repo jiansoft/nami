@@ -6,11 +6,11 @@ namespace jIAnSoft.Framework.Nami.Channels
     /// <summary>
     /// Channel for synchronous and asynchronous requests.
     /// </summary>
-    /// <typeparam name="R"></typeparam>
-    /// <typeparam name="M"></typeparam>
-    public class RequestReplyChannel<R, M>: IRequestReplyChannel<R,M>
+    /// <typeparam name="TR"></typeparam>
+    /// <typeparam name="TM"></typeparam>
+    public class RequestReplyChannel<TR, TM>: IRequestReplyChannel<TR,TM>
     {
-        private readonly Channel<IRequest<R, M>> _requestChannel = new Channel<IRequest<R, M>>();
+        private readonly Channel<IRequest<TR, TM>> _requestChannel = new Channel<IRequest<TR, TM>>();
 
         /// <summary>
         /// Subscribe to requests.
@@ -18,7 +18,7 @@ namespace jIAnSoft.Framework.Nami.Channels
         /// <param name="fiber"></param>
         /// <param name="onRequest"></param>
         /// <returns></returns>
-        public IDisposable Subscribe(IFiber fiber, Action<IRequest<R, M>> onRequest)
+        public IDisposable Subscribe(IFiber fiber, Action<IRequest<TR, TM>> onRequest)
         {
             return _requestChannel.Subscribe(fiber, onRequest);
         }
@@ -28,9 +28,9 @@ namespace jIAnSoft.Framework.Nami.Channels
         /// </summary>
         /// <param name="p"></param>
         /// <returns>null if no subscribers registered for request.</returns>
-        public IReply<M> SendRequest(R p)
+        public IReply<TM> SendRequest(TR p)
         {
-            var request = new ChannelRequest<R, M>(p);
+            var request = new ChannelRequest<TR, TM>(p);
             return _requestChannel.Publish(request) ? request : null;
         }
     }

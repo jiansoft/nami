@@ -5,6 +5,7 @@ using System.Threading;
 
 namespace jIAnSoft.Framework.Nami.Core
 {
+    /// <inheritdoc />
     /// <summary>
     /// Busy waits on lock to execute.  Can improve performance in certain situations.
     /// </summary>
@@ -33,14 +34,16 @@ namespace jIAnSoft.Framework.Nami.Core
             _msBeforeBlockingWait = msBeforeBlockingWait;
         }
 
-        ///<summary>
-        /// BusyWaitQueue with default executor.
-        ///</summary>
+        /// <inheritdoc />
+        /// <summary>
+        ///  BusyWaitQueue with default executor.
+        /// </summary>
         public BusyWaitQueue(int spinsBeforeTimeCheck, int msBeforeBlockingWait) 
             : this(new DefaultExecutor(), spinsBeforeTimeCheck, msBeforeBlockingWait)
         {
         }
         
+        /// <inheritdoc />
         /// <summary>
         /// Enqueue action.
         /// </summary>
@@ -64,6 +67,7 @@ namespace jIAnSoft.Framework.Nami.Core
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Execute actions until stopped.
         /// </summary>
@@ -72,6 +76,7 @@ namespace jIAnSoft.Framework.Nami.Core
             while (ExecuteNextBatch()) {}
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Stop consuming actions.
         /// </summary>
@@ -124,14 +129,10 @@ namespace jIAnSoft.Framework.Nami.Core
             }
 
             spins = 0;
-            if (stopwatch.ElapsedMilliseconds > _msBeforeBlockingWait)
-            {
-                Monitor.Wait(_lock);
-                stopwatch.Restart();
-                return true;
-            }
-
-            return false;
+            if (stopwatch.ElapsedMilliseconds <= _msBeforeBlockingWait) return false;
+            Monitor.Wait(_lock);
+            stopwatch.Restart();
+            return true;
         }
 
         private List<Action> TryDequeue()

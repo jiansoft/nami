@@ -5,16 +5,18 @@ using jIAnSoft.Framework.Nami.Fibers;
 
 namespace jIAnSoft.Framework.Nami.Channels
 {
-    ///<summary>
-    /// Default Channel Implementation. Methods are thread safe.
-    ///</summary>
-    ///<typeparam name="T"></typeparam>
+    /// <inheritdoc />
+    /// <summary>
+    ///  Default Channel Implementation. Methods are thread safe.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class Channel<T> : IChannel<T>
     {
         private event Action<T> _subscribers;
 
+        /// <inheritdoc />
         /// <summary>
-        /// <see cref="ISubscriber{T}.Subscribe(IFiber,Action{T})"/>
+        /// <see cref="M:jIAnSoft.Framework.Nami.Channels.ISubscriber`1.Subscribe(jIAnSoft.Framework.Nami.Fibers.IFiber,System.Action{`0})" />
         /// </summary>
         /// <param name="fiber"></param>
         /// <param name="receive"></param>

@@ -2,6 +2,7 @@ using System;
 
 namespace jIAnSoft.Framework.Nami.Core
 {
+    /// <inheritdoc />
     /// <summary>
     /// A scheduled event.
     /// </summary>

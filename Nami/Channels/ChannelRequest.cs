@@ -3,24 +3,24 @@ using System.Threading;
 
 namespace jIAnSoft.Framework.Nami.Channels
 {
-    internal class ChannelRequest<R, M> : IRequest<R, M>, IReply<M>
+    internal class ChannelRequest<TR, TM> : IRequest<TR, TM>, IReply<TM>
     {
         private readonly object _lock = new object();
-        private readonly R _req;
-        private readonly Queue<M> _resp = new Queue<M>();
+        private readonly TR _req;
+        private readonly Queue<TM> _resp = new Queue<TM>();
         private bool _disposed;
 
-        public ChannelRequest(R req)
+        public ChannelRequest(TR req)
         {
             _req = req;
         }
 
-        public R Request
+        public TR Request
         {
             get { return _req; }
         }
 
-        public bool SendReply(M response)
+        public bool SendReply(TM response)
         {
             lock (_lock)
             {
@@ -34,7 +34,7 @@ namespace jIAnSoft.Framework.Nami.Channels
             }
         }
 
-        public bool Receive(int timeoutInMs, out M result)
+        public bool Receive(int timeoutInMs, out TM result)
         {
             lock (_lock)
             {
@@ -45,7 +45,7 @@ namespace jIAnSoft.Framework.Nami.Channels
                 }
                 if (_disposed)
                 {
-                    result = default(M);
+                    result = default(TM);
                     return false;
                 }
                 Monitor.Wait(_lock, timeoutInMs);
@@ -55,7 +55,7 @@ namespace jIAnSoft.Framework.Nami.Channels
                     return true;
                 }
             }
-            result = default(M);
+            result = default(TM);
             return false;
         }
 

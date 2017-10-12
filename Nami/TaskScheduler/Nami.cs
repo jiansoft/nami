@@ -3,14 +3,14 @@ using System;
 
 namespace jIAnSoft.Framework.Nami.TaskScheduler
 {
-    public class Cron
+    public class Nami
     {
-        private static Cron _instance;
+        private static Nami _instance;
         private readonly IFiber _fiber;
 
-        private static Cron Instance => _instance ?? (_instance = new Cron());
+        private static Nami Instance => _instance ?? (_instance = new Nami());
 
-        private Cron()
+        private Nami()
         {
             _fiber = new PoolFiber();
             _fiber.Start();

@@ -5,21 +5,22 @@ using jIAnSoft.Framework.Nami.Fibers;
 
 namespace jIAnSoft.Framework.Nami.Channels
 {
+    /// <inheritdoc />
     /// <summary>
     /// Channel subscription that drops duplicates based upon a key.
     /// </summary>
-    /// <typeparam name="K"></typeparam>
+    /// <typeparam name="TK"></typeparam>
     /// <typeparam name="T"></typeparam>
-    public class KeyedBatchSubscriber<K, T> : BaseSubscription<T>
+    public class KeyedBatchSubscriber<TK, T> : BaseSubscription<T>
     {
         private readonly object _batchLock = new object();
 
-        private readonly Action<IDictionary<K, T>> _target;
-        private readonly Converter<T, K> _keyResolver;
+        private readonly Action<IDictionary<TK, T>> _target;
+        private readonly Converter<T, TK> _keyResolver;
         private readonly IFiber _fiber;
         private readonly long _intervalInMs;
 
-        private Dictionary<K, T> _pending;
+        private Dictionary<TK, T> _pending;
 
         /// <summary>
         /// Construct new instance.
@@ -28,7 +29,7 @@ namespace jIAnSoft.Framework.Nami.Channels
         /// <param name="target"></param>
         /// <param name="fiber"></param>
         /// <param name="intervalInMs"></param>
-        public KeyedBatchSubscriber(Converter<T, K> keyResolver, Action<IDictionary<K, T>> target, IFiber fiber, long intervalInMs)
+        public KeyedBatchSubscriber(Converter<T, TK> keyResolver, Action<IDictionary<TK, T>> target, IFiber fiber, long intervalInMs)
         {
             _keyResolver = keyResolver;
             _fiber = fiber;
@@ -55,7 +56,7 @@ namespace jIAnSoft.Framework.Nami.Channels
                 var key = _keyResolver(msg);
                 if (_pending == null)
                 {
-                    _pending = new Dictionary<K, T>();
+                    _pending = new Dictionary<TK, T>();
                     _fiber.Schedule(Flush, _intervalInMs);
                 }
                 _pending[key] = msg;
@@ -71,7 +72,7 @@ namespace jIAnSoft.Framework.Nami.Channels
             }
         }
 
-        private IDictionary<K, T> ClearPending()
+        private IDictionary<TK, T> ClearPending()
         {
             lock (_batchLock)
             {
@@ -80,7 +81,7 @@ namespace jIAnSoft.Framework.Nami.Channels
                     _pending = null;
                     return null;
                 }
-                IDictionary<K, T> toReturn = _pending;
+                IDictionary<TK, T> toReturn = _pending;
                 _pending = null;
                 return toReturn;
             }

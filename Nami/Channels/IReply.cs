@@ -2,11 +2,12 @@ using System;
 
 namespace jIAnSoft.Framework.Nami.Channels
 {
+    /// <inheritdoc />
     /// <summary>
     /// Used to receive one or more replies.
     /// </summary>
-    /// <typeparam name="M"></typeparam>
-    public interface IReply<M> : IDisposable
+    /// <typeparam name="TM"></typeparam>
+    public interface IReply<TM> : IDisposable
     {
         /// <summary>
         /// Receive a single response. Can be called repeatedly for multiple replies.
@@ -14,6 +15,6 @@ namespace jIAnSoft.Framework.Nami.Channels
         /// <param name="timeoutInMs"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        bool Receive(int timeoutInMs, out M result);
+        bool Receive(int timeoutInMs, out TM result);
     }
 }

@@ -9,8 +9,6 @@ namespace jIAnSoft.Framework.Nami.Core
     /// </summary>
     public class DefaultExecutor : IExecutor
     {
-        private bool _running = true;
-
         /// <inheritdoc />
         /// <summary>
         /// Executes all actions.
@@ -31,7 +29,7 @@ namespace jIAnSoft.Framework.Nami.Core
         /// <param name="toExecute"></param>
         public void Execute(Action toExecute)
         {
-            if (_running)
+            if (IsEnabled)
             {
                 toExecute();
             }
@@ -41,10 +39,6 @@ namespace jIAnSoft.Framework.Nami.Core
         /// When disabled, actions will be ignored by executor. The executor is typically disabled at shutdown
         /// to prevent any pending actions from being executed. 
         /// </summary>
-        public bool IsEnabled
-        {
-            get => _running;
-            set => _running = value;
-        }
+        public bool IsEnabled { get; set; } = true;
     }
 }

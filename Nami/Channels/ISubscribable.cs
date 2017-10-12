@@ -6,7 +6,7 @@ namespace jIAnSoft.Framework.Nami.Channels
     /// <typeparam name="T"></typeparam>
     /// <param name="msg"></param>
     /// <returns></returns>
-    public delegate bool Filter<T>(T msg);
+    public delegate bool Filter<in T>(T msg);
 
     /// <summary>
     /// Callback method and parameters for a channel subscription

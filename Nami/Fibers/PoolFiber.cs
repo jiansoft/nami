@@ -1,6 +1,7 @@
+using jIAnSoft.Framework.Nami.Core;
 using System;
 using System.Threading;
-using jIAnSoft.Framework.Nami.Core;
+using System.Threading.Tasks;
 
 namespace jIAnSoft.Framework.Nami.Fibers
 {
@@ -13,10 +14,11 @@ namespace jIAnSoft.Framework.Nami.Fibers
         private readonly Subscriptions _subscriptions = new Subscriptions();
         private readonly object _lock = new object();
         private readonly IThreadPool _pool;
-        private readonly Scheduler _scheduler;
-        //private readonly IExecutor _executor;
         private readonly IQueue _queue;
 
+        private readonly Scheduler _scheduler;
+        //private readonly IExecutor _executor;
+        
         private ExecutionState _started = ExecutionState.Created;
         private bool _flushPending;
 
@@ -24,30 +26,29 @@ namespace jIAnSoft.Framework.Nami.Fibers
         /// Construct new instance.
         /// </summary>
         /// <param name="pool"></param>
-        /// <param name="executor"></param>
-        public PoolFiber(IThreadPool pool, IExecutor executor)
+        public PoolFiber(IThreadPool pool)
         {
-            _queue = new NewDefaultQueue();
+            _queue = new DefaultQueue();
             _scheduler = new Scheduler(this);
             _pool = pool;
-           // _executor = executor;
+            // _executor = executor;
         }
 
+        /*
         /// <inheritdoc />
         /// <summary>
         /// Create a pool fiber with the default thread pool.
         /// </summary>
         public PoolFiber(IExecutor executor) 
-            : this(new DefaultThreadPool(), executor)
+            : this(new DefaultThreadPool())
         {
         }
-
+        */
         /// <inheritdoc />
         /// <summary>
         /// Create a pool fiber with the default thread pool and default executor.
         /// </summary>
-        public PoolFiber() 
-            : this(new DefaultThreadPool(), new DefaultExecutor())
+        public PoolFiber() : this(new DefaultThreadPool())
         {
         }
 
@@ -63,7 +64,6 @@ namespace jIAnSoft.Framework.Nami.Fibers
                 return;
             }
             _queue.Enqueue(action);
-
             lock (_lock)
             {
                 if (_started == ExecutionState.Created)
@@ -107,11 +107,11 @@ namespace jIAnSoft.Framework.Nami.Fibers
             var toExecute = _queue.DequeueAll();
             if (toExecute == null) return;
             //_executor.Execute(toExecute);
-            foreach (var ac in toExecute)
-            {
-                _pool.Queue(ac);
-            }
-
+            //            foreach (var ac in toExecute)
+            //            {
+            //                _pool.Queue(ac);
+            //            }
+            Parallel.ForEach(toExecute, ac => { _pool.Queue(ac); });
             lock (_lock)
             {
                 if (_queue.Count() > 0)

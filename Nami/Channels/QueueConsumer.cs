@@ -1,5 +1,5 @@
-using System;
 using jIAnSoft.Framework.Nami.Core;
+using System;
 
 namespace jIAnSoft.Framework.Nami.Channels
 {

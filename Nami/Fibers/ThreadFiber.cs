@@ -1,7 +1,7 @@
+using jIAnSoft.Framework.Nami.Core;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using jIAnSoft.Framework.Nami.Core;
 
 namespace jIAnSoft.Framework.Nami.Fibers
 {
@@ -26,7 +26,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
         /// Create a thread fiber with the default queue.
         /// </summary>
         public ThreadFiber()
-            : this(new NewDefaultQueue())
+            : this(new DefaultQueue())
         {
         }
 
@@ -36,7 +36,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
         /// </summary>
         /// <param name="queue"></param>
         public ThreadFiber(IQueue queue)
-            : this(queue, "ThreadFiber-" + GetNextThreadId())
+            : this(queue, $"ThreadFiber-{GetNextThreadId()}")
         {
         }
 
@@ -46,7 +46,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
         /// </summary>
         /// /// <param name="threadName"></param>
         public ThreadFiber(string threadName)
-            : this(new NewDefaultQueue(), threadName)
+            : this(new DefaultQueue(), threadName)
         {
         }
 
@@ -117,7 +117,6 @@ namespace jIAnSoft.Framework.Nami.Fibers
                 Monitor.Wait(_lock);
             }
             return running;
-
         }
 
         /// <inheritdoc />

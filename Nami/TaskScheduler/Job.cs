@@ -6,15 +6,10 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
     public enum Unit
     {
         Delay = 1,
-
         Weeks,
-
         Days,
-
         Hours,
-
         Minutes,
-
         Seconds
     }
 
@@ -73,7 +68,7 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
             _unit = Unit.Seconds;
             return this;
         }
-        
+
         public Job At(int hour, int minute, int second)
         {
             _hour = Math.Abs(hour);
@@ -134,7 +129,6 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
                     if (_second < 0)
                     {
                         _second = now.Second;
-
                     }
                     _nextRunTime =
                         new DateTime(now.Year, now.Month, now.Day, now.Hour, _minute, _second).AddHours(_interval - 1);
@@ -162,14 +156,14 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            var firstInMs = Convert.ToInt32((_nextRunTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond);
+            var firstInMs = Convert.ToInt64((_nextRunTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond);
             _taskDisposer = _fiber.Schedule(CanDo, firstInMs);
             return this;
         }
 
         private void CanDo()
         {
-            if (DateTime.Now >= _nextRunTime)
+            if (DateTime.Now.Ticks >= _nextRunTime.Ticks)
             {
                 _fiber.Enqueue(_task);
                 switch (_unit)
@@ -199,7 +193,7 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
             {
                 _taskDisposer.Dispose();
             }
-            var adjustTime = Convert.ToInt32((_nextRunTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond);
+            var adjustTime = Convert.ToInt64((_nextRunTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond);
             if (adjustTime < 1)
             {
                 adjustTime = 1;

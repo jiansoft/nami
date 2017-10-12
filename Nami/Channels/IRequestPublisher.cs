@@ -3,15 +3,15 @@ namespace jIAnSoft.Framework.Nami.Channels
     /// <summary>
     /// 
     /// </summary>
-    /// <typeparam name="R"></typeparam>
-    /// <typeparam name="M"></typeparam>
-    public interface IRequestPublisher<R, M>
+    /// <typeparam name="TR"></typeparam>
+    /// <typeparam name="TM"></typeparam>
+    public interface IRequestPublisher<in TR, TM>
     {
         /// <summary>
         /// Send request on the channel.
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        IReply<M> SendRequest(R request);
+        IReply<TM> SendRequest(TR request);
     }
 }

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Nami</PackageId>
+    <PackageId>jIAnSoft.Nami</PackageId>
     <PackageTags></PackageTags>
     <Title>Nami</Title>
     <Description></Description>
@@ -8,6 +8,14 @@
     <TargetFrameworks>net451</TargetFrameworks>
     <RootNamespace>jIAnSoft.Framework.Nami</RootNamespace>
     <AssemblyName>Nami</AssemblyName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Company>jIAnSoft</Company>
+    <Product>jIAnSoft.Nami</Product>
+    <Copyright>Copyright © jIAnSoft 2017</Copyright>
+    <PackageLicenseUrl>https://github.com/jiansoft/nami/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/jiansoft/nami</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jiansoft/nami.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net451'">
     <Reference Include="System" />

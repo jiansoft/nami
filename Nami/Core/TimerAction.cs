@@ -5,7 +5,7 @@ namespace jIAnSoft.Framework.Nami.Core
 {
     internal sealed class TimerAction : IDisposable
     {
-        private readonly ISchedulerRegistry _registry;
+        private readonly ISchedulerRegistry _fiber;
         private Action _action;
         private readonly long _firstIntervalInMs;
         private readonly long _intervalInMs;
@@ -13,9 +13,9 @@ namespace jIAnSoft.Framework.Nami.Core
         private Timer _timer;
         private bool _cancelled;
 
-        public TimerAction(ISchedulerRegistry registry, Action action, long firstIntervalInMs, long intervalInMs)
+        public TimerAction(ISchedulerRegistry fiber, Action action, long firstIntervalInMs, long intervalInMs)
         {
-            _registry = registry;
+            _fiber = fiber;
             _action = action;
             _firstIntervalInMs = firstIntervalInMs;
             _intervalInMs = intervalInMs;
@@ -30,11 +30,11 @@ namespace jIAnSoft.Framework.Nami.Core
         {
             if (_intervalInMs == Timeout.Infinite || _cancelled)
             {
-                _registry.Remove(this);
+                _fiber.Remove(this);
                 var timer = Interlocked.Exchange(ref _timer, null);
                 timer?.Dispose();
             }
-            _registry.Enqueue(ExecuteOnFiberThread);
+            _fiber.Enqueue(ExecuteOnFiberThread);
         }
 
         private void ExecuteOnFiberThread()
@@ -48,7 +48,7 @@ namespace jIAnSoft.Framework.Nami.Core
         {
             _cancelled = true;
             _action = null;
-            _registry.Remove(this);
+            _fiber.Remove(this);
             var timer = Interlocked.Exchange(ref _timer, null);
             timer?.Dispose();
         }
