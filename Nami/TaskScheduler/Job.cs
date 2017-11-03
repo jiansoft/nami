@@ -179,7 +179,7 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
                     }
                     else
                     {
-                        _nextRunTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, _minute, _second);
+                        _nextRunTime = new DateTime(now.Year, now.Month, now.Day, _hour, _minute, _second);
                         if (_interval > 1)
                         {
                             _nextRunTime = _nextRunTime.AddDays(_interval - 1);
