@@ -23,7 +23,7 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
 
         public static Job Delay(int interval)
         {
-            return new Job(interval, Unit.Delay, Instance._fiber);
+            return new Job(interval, Unit.Delay, Instance._fiber, DelayUnit.Milliseconds);
         }
 
         public static Job EverySunday()

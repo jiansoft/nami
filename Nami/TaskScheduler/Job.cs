@@ -13,6 +13,17 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
         Seconds
     }
 
+    public enum DelayUnit 
+    {
+        None = 1,
+        Weeks,
+        Days,
+        Hours,
+        Minutes,
+        Seconds,
+        Milliseconds
+    }
+
     public class Job : IDisposable
     {
         private IFiber _fiber;
@@ -25,6 +36,7 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
         private readonly DayOfWeek _weekday;
         private DateTime _nextRunTime;
         private IDisposable _taskDisposer;
+        private DelayUnit _delayUnit;
 
         public Job(int intervel, IFiber fiber)
         {
@@ -33,6 +45,12 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
             _second = -1;
             _interval = intervel;
             _fiber = fiber;
+            _delayUnit = DelayUnit.None;
+        }
+
+        public Job(int intervel, Unit unit, IFiber fiber, DelayUnit delayMode) : this(intervel, unit, fiber)
+        {
+            _delayUnit = delayMode;
         }
 
         public Job(int intervel, Unit unit, IFiber fiber) : this(intervel, fiber)
@@ -47,25 +65,53 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
 
         public Job Days()
         {
-            _unit = Unit.Days;
+            if (_delayUnit == DelayUnit.None)
+            {
+                _unit = Unit.Days;
+            }
+            else
+            {
+                _delayUnit = DelayUnit.Days;
+            }
             return this;
         }
 
         public Job Hours()
         {
-            _unit = Unit.Hours;
+            if (_delayUnit == DelayUnit.None)
+            {
+                _unit = Unit.Hours;
+            }
+            else
+            {
+                _delayUnit = DelayUnit.Hours;
+            }
             return this;
         }
 
         public Job Minutes()
         {
-            _unit = Unit.Minutes;
+            if (_delayUnit == DelayUnit.None)
+            {
+                _unit = Unit.Minutes;
+            }
+            else
+            {
+                _delayUnit = DelayUnit.Minutes;
+            }
             return this;
         }
 
         public Job Seconds()
         {
-            _unit = Unit.Seconds;
+            if (_delayUnit == DelayUnit.None)
+            {
+                _unit = Unit.Seconds;
+            }
+            else
+            {
+                _delayUnit = DelayUnit.Seconds;
+            }
             return this;
         }
 
@@ -90,7 +136,30 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
             switch (_unit)
             {
                 case Unit.Delay:
-                    _nextRunTime = now.AddMilliseconds(_interval);
+                    switch (_delayUnit)
+                    {
+                        case DelayUnit.Weeks:
+                            _nextRunTime = now.AddDays(_interval * 7);
+                            break;
+                        case DelayUnit.Days:
+                            _nextRunTime = now.AddDays(_interval);
+                            break;
+                        case DelayUnit.Hours:
+                            _nextRunTime = now.AddHours(_interval);
+                            break;
+                        case DelayUnit.Minutes:
+                            _nextRunTime = now.AddMinutes(_interval);
+                            break;
+                        case DelayUnit.Seconds:
+                            _nextRunTime = now.AddSeconds(_interval);
+                            break;
+                        case DelayUnit.Milliseconds:
+                            _nextRunTime = now.AddMilliseconds(_interval);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    //_nextRunTime = now.AddMilliseconds(_interval);
                     break;
                 case Unit.Weeks:
                     var i = (7 - (now.DayOfWeek - _weekday)) % 7;

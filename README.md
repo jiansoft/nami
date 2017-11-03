@@ -23,7 +23,7 @@ Usage
 using jIAnSoft.Framework.Nami.Fibers;
 using jIAnSoft.Framework.Nami.TaskScheduler;
 
- ]internal static class Program
+internal static class Program
 {
     private static void Main(string[] args)
     {
