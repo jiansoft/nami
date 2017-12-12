@@ -10,7 +10,8 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
         Days,
         Hours,
         Minutes,
-        Seconds
+        Seconds,
+        Milliseconds
     }
 
     public enum DelayUnit 
@@ -111,6 +112,19 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
             else
             {
                 _delayUnit = DelayUnit.Seconds;
+            }
+            return this;
+        }
+
+        public Job Milliseconds()
+        {
+            if (_delayUnit == DelayUnit.None)
+            {
+                _unit = Unit.Milliseconds;
+            }
+            else
+            {
+                _delayUnit = DelayUnit.Milliseconds;
             }
             return this;
         }
@@ -222,6 +236,9 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
                 case Unit.Seconds:
                     _nextRunTime = now.AddSeconds(_interval);
                     break;
+                case Unit.Milliseconds:
+                    _nextRunTime = now.AddMilliseconds(_interval);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -253,6 +270,9 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
                         break;
                     case Unit.Seconds:
                         _nextRunTime = _nextRunTime.AddSeconds(_interval);
+                        break;
+                    case Unit.Milliseconds:
+                        _nextRunTime = _nextRunTime.AddMilliseconds(_interval);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
