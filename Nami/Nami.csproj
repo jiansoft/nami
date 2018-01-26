@@ -16,9 +16,9 @@
     <PackageProjectUrl>https://github.com/jiansoft/nami</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jiansoft/nami.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>17.12.12</Version>
-    <AssemblyVersion>17.12.12</AssemblyVersion>
-    <FileVersion>17.12.12</FileVersion>
+    <Version>18.1.26.1242</Version>
+    <AssemblyVersion>18.1.26.1242</AssemblyVersion>
+    <FileVersion>18.1.26.1242</FileVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net451'">

@@ -225,10 +225,8 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
                     {
                         _second = now.Second;
                     }
-                    _nextRunTime =
-                        new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, _second).AddMinutes(
-                            _interval - 1);
-                    if (_second < now.Second)
+                    _nextRunTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, _second).AddMinutes(_interval - 1);
+                    if (_second <= now.Second)
                     {
                         _nextRunTime = _nextRunTime.AddMinutes(_interval);
                     }
