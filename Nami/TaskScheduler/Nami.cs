@@ -1,5 +1,5 @@
-﻿using jIAnSoft.Framework.Nami.Fibers;
-using System;
+﻿using System;
+using jIAnSoft.Framework.Nami.Fibers;
 
 namespace jIAnSoft.Framework.Nami.TaskScheduler
 {
@@ -45,7 +45,6 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
         {
             return new Job(DayOfWeek.Wednesday, Instance._fiber);
         }
-
         public static Job EveryThursday()
         {
             return new Job(DayOfWeek.Thursday, Instance._fiber);

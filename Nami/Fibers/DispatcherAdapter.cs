@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if (!NETSTANDARD1_3 && !NETSTANDARD2_0)
+using System;
 using System.Windows.Threading;
 using jIAnSoft.Framework.Nami.Core;
 
@@ -21,3 +22,4 @@ namespace jIAnSoft.Framework.Nami.Fibers
         }
     }
 }
+#endif

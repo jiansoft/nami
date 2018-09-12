@@ -5,7 +5,7 @@
     <Title>Nami</Title>
     <Description></Description>
     <Authors>Eddie</Authors>
-    <TargetFrameworks>net451</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <RootNamespace>jIAnSoft.Framework.Nami</RootNamespace>
     <AssemblyName>Nami</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -16,19 +16,23 @@
     <PackageProjectUrl>https://github.com/jiansoft/nami</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jiansoft/nami.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>18.1.26.1242</Version>
-    <AssemblyVersion>18.1.26.1242</AssemblyVersion>
-    <FileVersion>18.1.26.1242</FileVersion>
+    <Version>18.9.12.1322</Version>
+    <AssemblyVersion>18.9.12.1322</AssemblyVersion>
+    <FileVersion>18.9.12.1322</FileVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net451'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net461|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="WindowsBase" />
   </ItemGroup>
+  <!--<ItemGroup>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>-->
      <!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
    <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -49,22 +53,20 @@
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
- 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+ -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
      <PackageReference Include="System.Runtime" Version="4.3.0" />
     <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.3.0" />
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
-    <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
-    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-   <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
+    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" /> 
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
-  </ItemGroup>-->
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.5.1" />
+  </ItemGroup>
   
 </Project>
