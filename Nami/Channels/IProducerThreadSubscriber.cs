@@ -1,6 +1,6 @@
-using jIAnSoft.Framework.Nami.Core;
+using jIAnSoft.Nami.Core;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     /// <summary>
     /// Action subscriber that receives actions on producer thread.

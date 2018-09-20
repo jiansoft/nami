@@ -1,4 +1,4 @@
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     /// <summary>
     /// Message filter delegate

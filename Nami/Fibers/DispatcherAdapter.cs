@@ -1,10 +1,11 @@
 ﻿#if (!NETSTANDARD1_3 && !NETSTANDARD2_0)
 using System;
 using System.Windows.Threading;
-using jIAnSoft.Framework.Nami.Core;
 
-namespace jIAnSoft.Framework.Nami.Fibers
+namespace jIAnSoft.Nami.Fibers
 {
+    using Core;
+
     internal class DispatcherAdapter : IExecutionContext
     {
         private readonly Dispatcher _dispatcher;

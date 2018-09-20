@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-namespace jIAnSoft.Framework.Nami.Core
+namespace jIAnSoft.Nami.Core
 {
     /// <inheritdoc />
     /// <summary>
@@ -56,15 +56,13 @@ namespace jIAnSoft.Framework.Nami.Core
                 Monitor.PulseAll(_lock);
             }
         }
-
-        public List<Action> Dequeue()
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public int Count()
         {
-            throw new NotImplementedException();
+            lock (_lock)
+            {
+                return _actions.Count;
+            }
         }
 
         /// <inheritdoc />

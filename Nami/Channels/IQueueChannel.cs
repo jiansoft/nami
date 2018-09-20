@@ -1,7 +1,7 @@
 using System;
-using jIAnSoft.Framework.Nami.Core;
+using jIAnSoft.Nami.Core;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     /// <summary>
     /// Creates a queue that will deliver a message to a single consumer. Load balancing can be achieved by creating 

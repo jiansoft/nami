@@ -1,6 +1,6 @@
-using jIAnSoft.Framework.Nami.Core;
+using jIAnSoft.Nami.Core;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     /// <summary>
     /// Base implementation for subscription

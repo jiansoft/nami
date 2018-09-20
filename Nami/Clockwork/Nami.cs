@@ -1,7 +1,7 @@
 ﻿using System;
-using jIAnSoft.Framework.Nami.Fibers;
+using jIAnSoft.Nami.Fibers;
 
-namespace jIAnSoft.Framework.Nami.TaskScheduler
+namespace jIAnSoft.Nami.Clockwork
 {
     public class Nami
     {

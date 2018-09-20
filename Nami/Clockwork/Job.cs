@@ -1,7 +1,7 @@
 ﻿using System;
-using jIAnSoft.Framework.Nami.Fibers;
+using jIAnSoft.Nami.Fibers;
 
-namespace jIAnSoft.Framework.Nami.TaskScheduler
+namespace jIAnSoft.Nami.Clockwork
 {
     public enum Unit
     {
@@ -39,22 +39,22 @@ namespace jIAnSoft.Framework.Nami.TaskScheduler
         private IDisposable _taskDisposer;
         private DelayUnit _delayUnit;
 
-        public Job(int intervel, IFiber fiber)
+        public Job(int interval, IFiber fiber)
         {
             _hour = -1;
             _minute = -1;
             _second = -1;
-            _interval = intervel;
+            _interval = interval;
             _fiber = fiber;
             _delayUnit = DelayUnit.None;
         }
 
-        public Job(int intervel, Unit unit, IFiber fiber, DelayUnit delayMode) : this(intervel, unit, fiber)
+        public Job(int interval, Unit unit, IFiber fiber, DelayUnit delayMode) : this(interval, unit, fiber)
         {
             _delayUnit = delayMode;
         }
 
-        public Job(int intervel, Unit unit, IFiber fiber) : this(intervel, fiber)
+        public Job(int interval, Unit unit, IFiber fiber) : this(interval, fiber)
         {
             _unit = unit;
         }

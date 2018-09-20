@@ -1,7 +1,7 @@
-using jIAnSoft.Framework.Nami.Core;
+using jIAnSoft.Nami.Core;
 using System;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     internal class QueueConsumer<T> : IDisposable
     {

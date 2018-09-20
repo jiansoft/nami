@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using jIAnSoft.Framework.Nami.Core;
-using jIAnSoft.Framework.Nami.Fibers;
+using jIAnSoft.Nami.Core;
+using jIAnSoft.Nami.Fibers;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     /// <inheritdoc />
     /// <summary>
@@ -16,7 +16,7 @@ namespace jIAnSoft.Framework.Nami.Channels
 
         /// <inheritdoc />
         /// <summary>
-        /// <see cref="M:jIAnSoft.Framework.Nami.Channels.ISubscriber`1.Subscribe(jIAnSoft.Framework.Nami.Fibers.IFiber,System.Action{`0})" />
+        /// <see cref="M:jIAnSoft.Nami.Channels.ISubscriber`1.Subscribe(jIAnSoft.Nami.Fibers.IFiber,System.Action{`0})" />
         /// </summary>
         /// <param name="fiber"></param>
         /// <param name="receive"></param>

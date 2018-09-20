@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
-using jIAnSoft.Framework.Nami.Core;
+using jIAnSoft.Nami.Core;
 
-namespace jIAnSoft.Framework.Nami.Fibers
+namespace jIAnSoft.Nami.Fibers
 {
     ///<summary>
     /// Allows interaction with Windows Forms.  Transparently moves actions onto the Form's thread.

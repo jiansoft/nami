@@ -1,12 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageId>jIAnSoft.Nami</PackageId>
     <PackageTags></PackageTags>
     <Title>Nami</Title>
     <Description></Description>
     <Authors>Eddie</Authors>
-    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
-    <RootNamespace>jIAnSoft.Framework.Nami</RootNamespace>
+    <TargetFrameworks>net451;netstandard2.0</TargetFrameworks>
+    <RootNamespace>jIAnSoft.Nami</RootNamespace>
     <AssemblyName>Nami</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Company>jIAnSoft</Company>
@@ -16,21 +16,22 @@
     <PackageProjectUrl>https://github.com/jiansoft/nami</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jiansoft/nami.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>18.9.12.1322</Version>
-    <AssemblyVersion>18.9.12.1322</AssemblyVersion>
-    <FileVersion>18.9.12.1322</FileVersion>
+    <Version>18.9.20.1613</Version>
+    <AssemblyVersion>18.9.20.1613</AssemblyVersion>
+    <FileVersion>18.9.20.1613</FileVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net461|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net451|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="Microsoft.CSharp" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net451'">
+    
+    
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <!--<ItemGroup>
+  <Reference Include="Microsoft.CSharp" />
+  <Reference Include="System.Data" />
     <Reference Include="WindowsBase" />
   </ItemGroup>-->
      <!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
@@ -55,18 +56,22 @@
   </ItemGroup>
  -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    
+    
+    <!--
      <PackageReference Include="System.Runtime" Version="4.3.0" />
     <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
+    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
+     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
-    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" /> 
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />-->
   </ItemGroup>
+  <!--
   <ItemGroup>
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.5.1" />
-  </ItemGroup>
+  </ItemGroup>-->
   
 </Project>

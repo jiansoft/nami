@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace jIAnSoft.Framework.Nami.Core
+namespace jIAnSoft.Nami.Core
 {
     internal static class Lists
     {

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using jIAnSoft.Framework.Nami.Fibers;
+using jIAnSoft.Nami.Fibers;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     /// <summary>
     /// Channel subscription methods.

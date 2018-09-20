@@ -1,14 +1,14 @@
-using jIAnSoft.Framework.Nami.Core;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 
-namespace jIAnSoft.Framework.Nami.Fibers
+namespace jIAnSoft.Nami.Fibers
 {
+    using Core;
+
     /// <inheritdoc />
     /// <summary>
     /// Fiber implementation backed by a dedicated thread.
-    /// <see cref="T:jIAnSoft.Framework.Nami.Fibers.IFiber" />
+    /// <see cref="T:jIAnSoft.Nami.Fibers.IFiber" />
     /// </summary>
     public class ThreadFiber : IFiber
     {
@@ -49,8 +49,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
             : this(new DefaultQueue(), threadName)
         {
         }
-
-
+        
         /// <summary>
         /// Creates a thread fiber.
         /// </summary>
@@ -90,33 +89,13 @@ namespace jIAnSoft.Framework.Nami.Fibers
         /// <returns></returns>
         private bool ExecuteNextBatch()
         {
-            var toExecute = DequeueAll();
+            var toExecute = _queue.DequeueAll();
             if (toExecute == null)
             {
                 return false;
             }
             _executor.Execute(toExecute);
             return true;
-        }
-
-        private List<Action> DequeueAll()
-        {
-            lock (_lock)
-            {
-                if (!ReadyToDequeue()) return null;
-                var toPass = _queue.DequeueAll();
-                return toPass;
-            }
-        }
-
-        private bool ReadyToDequeue()
-        {
-            var running = _started == ExecutionState.Running;
-            while (_queue.Count() == 0 && running)
-            {
-                Monitor.Wait(_lock);
-            }
-            return running;
         }
 
         /// <inheritdoc />
@@ -127,10 +106,6 @@ namespace jIAnSoft.Framework.Nami.Fibers
         public void Enqueue(Action action)
         {
             _queue.Enqueue(action);
-            lock (_lock)
-            {
-                Monitor.PulseAll(_lock);
-            }
         }
 
         /// <inheritdoc />
@@ -161,7 +136,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
 
         /// <inheritdoc />
         /// <summary>
-        /// <see cref="M:jIAnSoft.Framework.Nami.Core.IScheduler.Schedule(System.Action,System.Int64)" />
+        /// <see cref="M:jIAnSoft.Nami.Core.IScheduler.Schedule(System.Action,System.Int64)" />
         /// </summary>
         /// <param name="action"></param>
         /// <param name="firstInMs"></param>
@@ -173,7 +148,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
 
         /// <inheritdoc />
         /// <summary>
-        /// <see cref="M:jIAnSoft.Framework.Nami.Core.IScheduler.ScheduleOnInterval(System.Action,System.Int64,System.Int64)" />
+        /// <see cref="M:jIAnSoft.Nami.Core.IScheduler.ScheduleOnInterval(System.Action,System.Int64,System.Int64)" />
         /// </summary>
         /// <param name="action"></param>
         /// <param name="firstInMs"></param>
@@ -185,7 +160,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
 
         /// <inheritdoc />
         /// <summary>
-        /// <see cref="M:jIAnSoft.Framework.Nami.Fibers.IFiber.Start" />
+        /// <see cref="M:jIAnSoft.Nami.Fibers.IFiber.Start" />
         /// </summary>
         public void Start()
         {

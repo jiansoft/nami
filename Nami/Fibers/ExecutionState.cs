@@ -1,4 +1,4 @@
-namespace jIAnSoft.Framework.Nami.Fibers
+namespace jIAnSoft.Nami.Fibers
 {
     ///<summary>
     /// Fiber execution state management

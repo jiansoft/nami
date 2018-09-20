@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace jIAnSoft.Framework.Nami.Core
+namespace jIAnSoft.Nami.Core
 {
     /// <inheritdoc />
     /// <summary>

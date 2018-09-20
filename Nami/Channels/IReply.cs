@@ -1,6 +1,6 @@
 using System;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     /// <inheritdoc />
     /// <summary>

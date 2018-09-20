@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
-using jIAnSoft.Framework.Nami.Core;
+using jIAnSoft.Nami.Core;
 
-namespace jIAnSoft.Framework.Nami.Fibers
+namespace jIAnSoft.Nami.Fibers
 {
     internal class FormAdapter : IExecutionContext
     {

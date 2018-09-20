@@ -1,8 +1,8 @@
 using System;
-using jIAnSoft.Framework.Nami.Core;
-using jIAnSoft.Framework.Nami.Fibers;
+using jIAnSoft.Nami.Core;
+using jIAnSoft.Nami.Fibers;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     /// <summary>
     /// Subscribes to last action received on the channel. 

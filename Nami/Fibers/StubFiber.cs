@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace jIAnSoft.Framework.Nami.Fibers
+namespace jIAnSoft.Nami.Fibers
 {
     /// <summary>
     /// StubFiber does not use a backing thread or a thread pool for execution. Actions are added to pending

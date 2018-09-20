@@ -1,10 +1,10 @@
-using jIAnSoft.Framework.Nami.Core;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace jIAnSoft.Framework.Nami.Fibers
+namespace jIAnSoft.Nami.Fibers
 {
+    using Core;
+
     /// <inheritdoc />
     /// <summary>
     /// Fiber that uses a thread pool for execution.
@@ -13,7 +13,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
     {
         private readonly Subscriptions _subscriptions = new Subscriptions();
         private readonly object _lock = new object();
-        private readonly IThreadPool _pool;
+        private readonly IThreadPool _threadPool;
         private readonly IQueue _queue;
 
         private readonly Scheduler _scheduler;
@@ -25,13 +25,13 @@ namespace jIAnSoft.Framework.Nami.Fibers
         /// <summary>
         /// Construct new instance.
         /// </summary>
-        /// <param name="pool"></param>
-        public PoolFiber(IThreadPool pool)
+        /// <param name="threadPool"></param>
+        public PoolFiber(IThreadPool threadPool)
         {
             _queue = new DefaultQueue();
             _scheduler = new Scheduler(this);
-            _pool = pool;
-            // _executor = executor;
+            _threadPool = threadPool;
+            //_executor = new DefaultExecutor();
         }
 
         /*
@@ -71,7 +71,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
                     return;
                 }
                 if (_flushPending) return;
-                _pool.Queue(Flush);
+                _threadPool.Queue(Flush);
                 _flushPending = true;
             }
         }
@@ -105,19 +105,24 @@ namespace jIAnSoft.Framework.Nami.Fibers
         private void Flush()
         {
             var toExecute = _queue.DequeueAll();
-            if (toExecute == null) return;
+            if (toExecute == null)
+            {
+                return;
+            }
+
             //_executor.Execute(toExecute);
-            //            foreach (var ac in toExecute)
-            //            {
-            //                _pool.Queue(ac);
-            //            }
-            Parallel.ForEach(toExecute, ac => { _pool.Queue(ac); });
+            foreach (var ac in toExecute)
+            {
+                _threadPool.Queue(ac);
+            }
+
+            //Parallel.ForEach(toExecute, ac => { _pool.Queue(ac); });
             lock (_lock)
             {
                 if (_queue.Count() > 0)
                 {
                     // don't monopolize thread.
-                    _pool.Queue(Flush);
+                    _threadPool.Queue(Flush);
                 }
                 else
                 {
@@ -129,7 +134,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
 
         /// <inheritdoc />
         /// <summary>
-        /// <see cref="M:jIAnSoft.Framework.Nami.Core.IScheduler.Schedule(System.Action,System.Int64)" />
+        /// <see cref="M:jIAnSoft.Nami.Core.IScheduler.Schedule(System.Action,System.Int64)" />
         /// </summary>
         /// <param name="action"></param>
         /// <param name="firstInMs"></param>
@@ -141,7 +146,7 @@ namespace jIAnSoft.Framework.Nami.Fibers
 
         /// <inheritdoc />
         /// <summary>
-        /// <see cref="M:jIAnSoft.Framework.Nami.Core.IScheduler.ScheduleOnInterval(System.Action,System.Int64,System.Int64)" />
+        /// <see cref="M:jIAnSoft.Nami.Core.IScheduler.ScheduleOnInterval(System.Action,System.Int64,System.Int64)" />
         /// </summary>
         /// <param name="action"></param>
         /// <param name="firstInMs"></param>

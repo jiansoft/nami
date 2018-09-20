@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace jIAnSoft.Framework.Nami.Core
+namespace jIAnSoft.Nami.Core
 {
     /// <inheritdoc />
     /// <summary>
@@ -64,14 +64,12 @@ namespace jIAnSoft.Framework.Nami.Core
             }
         }
 
-        public List<Action> Dequeue()
-        {
-            throw new NotImplementedException();
-        }
-
         public int Count()
         {
-            throw new NotImplementedException();
+            lock (_lock)
+            {
+                return _actions.Count;
+            }
         }
 
         /// <inheritdoc />
@@ -142,11 +140,7 @@ namespace jIAnSoft.Framework.Nami.Core
             {
                 Monitor.Wait(_lock);
             }
-            if (!_running)
-            {
-                return false;
-            }
-            return true;
+            return _running;
         }
 
         private bool ExecuteNextBatch()

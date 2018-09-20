@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace jIAnSoft.Framework.Nami.Fibers
+namespace jIAnSoft.Nami.Fibers
 {
-    ///<summary>
-    /// For use only in testing.  Allows for controlled execution of scheduled actions on the StubFiber.
-    ///</summary>
+    /// <inheritdoc />
+    /// <summary>
+    ///  For use only in testing.  Allows for controlled execution of scheduled actions on the StubFiber.
+    /// </summary>
     public class StubScheduledAction : IDisposable
     {
         private readonly Action _action;

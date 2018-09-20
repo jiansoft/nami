@@ -1,8 +1,8 @@
 ﻿#if (!NETSTANDARD1_3 && !NETSTANDARD2_0)
 using System.Windows.Threading;
-using jIAnSoft.Framework.Nami.Core;
+using jIAnSoft.Nami.Core;
 
-namespace jIAnSoft.Framework.Nami.Fibers
+namespace jIAnSoft.Nami.Fibers
 {
     /// <summary>
     /// Adapts Dispatcher to a Fiber. Transparently moves actions onto the Dispatcher thread.

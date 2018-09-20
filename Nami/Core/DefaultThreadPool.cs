@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace jIAnSoft.Framework.Nami.Core
+namespace jIAnSoft.Nami.Core
 {
     /// <inheritdoc />
     /// <summary>
@@ -11,7 +11,7 @@ namespace jIAnSoft.Framework.Nami.Core
     {
         /// <inheritdoc />
         /// <summary>
-        /// Enqueues action.
+        /// Enqueue action.
         /// </summary>
         /// <param name="action"></param>
         public void Queue(Action action)

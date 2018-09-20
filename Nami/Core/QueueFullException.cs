@@ -1,7 +1,8 @@
 using System;
 
-namespace jIAnSoft.Framework.Nami.Core
+namespace jIAnSoft.Nami.Core
 {
+    /// <inheritdoc />
     /// <summary>
     /// Thrown when a queue is full.
     /// </summary>
@@ -9,6 +10,7 @@ namespace jIAnSoft.Framework.Nami.Core
     {
         private readonly int _depth;
 
+        /// <inheritdoc />
         /// <summary>
         /// Construct the execution with the depth of the queue.
         /// </summary>
@@ -19,6 +21,7 @@ namespace jIAnSoft.Framework.Nami.Core
             _depth = depth;
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Construct with a custom message.
         /// </summary>
@@ -31,9 +34,6 @@ namespace jIAnSoft.Framework.Nami.Core
         /// <summary>
         /// Depth of queue.
         /// </summary>
-        public int Depth
-        {
-            get { return _depth; }
-        }
+        public int Depth => _depth;
     }
 }

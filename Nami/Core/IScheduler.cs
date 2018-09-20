@@ -1,6 +1,6 @@
 using System;
 
-namespace jIAnSoft.Framework.Nami.Core
+namespace jIAnSoft.Nami.Core
 {
     /// <summary>
     /// Methods for scheduling actions that will be executed in the future.

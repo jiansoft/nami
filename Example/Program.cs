@@ -1,8 +1,8 @@
-﻿using System;
-using jIAnSoft.Framework.Nami.Fibers;
-using jIAnSoft.Framework.Nami.TaskScheduler;
+﻿using jIAnSoft.Nami.Clockwork;
+using jIAnSoft.Nami.Fibers;
+using System;
 
-namespace DemoNetCore
+namespace Example
 {
     internal static class Program
     {
@@ -13,12 +13,28 @@ namespace DemoNetCore
             pool.Start();
             thread.Start();
             pool.ScheduleOnInterval(() => { PrintData("pool  ", DateTime.Now); }, 0, 150000);
-            var td = thread.ScheduleOnInterval(() => { PrintData("thread", DateTime.Now); }, 0, 150000);
+            var td = thread.ScheduleOnInterval(() => { PrintData("thread", DateTime.Now); }, 0, 10000);
+            thread.ScheduleOnInterval(() => { PrintData("thread ten second", DateTime.Now); }, 0, 10000);
+            for (int i = 0; i < 100; i++)
+            {
+                thread.Enqueue(() => { PrintData("thread  ", DateTime.Now); });
+            }
+
             pool.Schedule(() =>
             {
                 Console.WriteLine($"td Dispose");
                 td.Dispose();
+                for (int i = 0; i < 10; i++)
+                {
+                    thread.Enqueue(() => { PrintData("Schedule start thread  ", DateTime.Now); });
+                }
             }, 20000);
+
+            Nami.Every(1).Seconds().Do(() =>
+            {
+                thread?.Enqueue(() => { PrintData(" Nami.Every(1).Seconds().Do  ", DateTime.Now); });
+
+            });
 
             Nami.Every(15).Seconds().Do(() => { PrintData("Nami  ", DateTime.Now); });
             Nami.Every(1).Hours().At(0, 02, 0).Do(() => { PrintData("Hours  2", DateTime.Now); });

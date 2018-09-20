@@ -1,7 +1,7 @@
 using System;
-using jIAnSoft.Framework.Nami.Core;
+using jIAnSoft.Nami.Core;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     internal class Unsubscriber<T> : IDisposable
     {

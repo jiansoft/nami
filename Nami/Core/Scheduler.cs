@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace jIAnSoft.Framework.Nami.Core
+namespace jIAnSoft.Nami.Core
 {
     /// <inheritdoc cref="ISchedulerRegistry" />
     /// <summary>
@@ -10,11 +10,8 @@ namespace jIAnSoft.Framework.Nami.Core
     public class Scheduler : ISchedulerRegistry, IScheduler, IDisposable
     {
         private volatile bool _running = true;
-
         private readonly IExecutionContext _fiber;
-
-        //private List<IDisposable> _pending = new List<IDisposable>();
-        private readonly Subscriptions _disposabler = new Subscriptions();
+        private readonly Subscriptions _pending = new Subscriptions();
 
         ///<summary>
         /// Constructs new instance.
@@ -41,7 +38,7 @@ namespace jIAnSoft.Framework.Nami.Core
 
         /// <inheritdoc />
         /// <summary>
-        ///  Enqueues actions on to context after schedule elapses.  
+        ///  Enqueue actions on to context after schedule elapses.  
         /// </summary>
         public IDisposable ScheduleOnInterval(Action action, long firstInMs, long regularInMs)
         {
@@ -57,12 +54,12 @@ namespace jIAnSoft.Framework.Nami.Core
         /// <param name="toRemove"></param>
         public void Remove(IDisposable toRemove)
         {
-            _fiber.Enqueue(() => _disposabler.Remove(toRemove));
+            _fiber.Enqueue(() => _pending.Remove(toRemove));
         }
 
         /// <inheritdoc />
         /// <summary>
-        ///  Enqueues actions on to context immediately.
+        ///  Enqueue actions on to context immediately.
         /// </summary>
         /// <param name="action"></param>
         public void Enqueue(Action action)
@@ -75,7 +72,7 @@ namespace jIAnSoft.Framework.Nami.Core
             _fiber.Enqueue(() =>
             {
                 if (!_running) return;
-                _disposabler.Add(pending);
+                _pending.Add(pending);
                 pending.Schedule();
             });
         }
@@ -87,7 +84,7 @@ namespace jIAnSoft.Framework.Nami.Core
         public void Dispose()
         {
             _running = false;
-            _disposabler.Dispose();
+            _pending.Dispose();
         }
     }
 }

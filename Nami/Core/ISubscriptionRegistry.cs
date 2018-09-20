@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace jIAnSoft.Framework.Nami.Core
+namespace jIAnSoft.Nami.Core
 {
     ///<summary>
     /// Allows for the registration and deregistration of subscriptions

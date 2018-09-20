@@ -1,7 +1,7 @@
 using System;
-using jIAnSoft.Framework.Nami.Fibers;
+using jIAnSoft.Nami.Fibers;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     /// <summary>
     /// Methods for working with a replyChannel

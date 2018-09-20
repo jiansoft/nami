@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace jIAnSoft.Framework.Nami.Core
+namespace jIAnSoft.Nami.Core
 {
     internal sealed class TimerAction : IDisposable
     {

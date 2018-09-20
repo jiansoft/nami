@@ -1,10 +1,10 @@
 using System;
-using jIAnSoft.Framework.Nami.Core;
+using jIAnSoft.Nami.Core;
 
-namespace jIAnSoft.Framework.Nami.Fibers
+namespace jIAnSoft.Nami.Fibers
 {
     /// <summary>
-    /// Enqueues pending actions for the context of execution (thread, pool of threads, message pump, etc.)
+    /// Enqueue pending actions for the context of execution (thread, pool of threads, message pump, etc.)
     /// </summary>
     public interface IFiber : ISubscriptionRegistry, IExecutionContext, IScheduler, IDisposable
     {

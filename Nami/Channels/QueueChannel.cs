@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using jIAnSoft.Framework.Nami.Core;
+using jIAnSoft.Nami.Core;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     /// <summary>
     /// Default QueueChannel implementation. Once and only once delivery to first available consumer.

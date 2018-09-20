@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     internal class ChannelRequest<TR, TM> : IRequest<TR, TM>, IReply<TM>
     {

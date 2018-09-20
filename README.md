@@ -5,6 +5,7 @@ This project fork from [retlang](<https://code.google.com/archive/p/retlang/>).
 
 [![NuGet](https://img.shields.io/nuget/v/jIAnSoft.Nami.svg?label=nuget&style=flat-square)](https://www.nuget.org/packages/jIAnSoft.Nami/)
 
+Supported .NET Framework 4.5.1 and .Net Core 2.0
 ### Features
 
 * Fiber

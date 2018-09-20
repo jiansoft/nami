@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace jIAnSoft.Framework.Nami.Core
+namespace jIAnSoft.Nami.Core
 {
     /// <summary>
     /// Holds on to actions until the execution context can process them.
@@ -9,13 +9,13 @@ namespace jIAnSoft.Framework.Nami.Core
     public interface IQueue
     {
         ///<summary>
-        /// Enqueues action for execution context to process.
+        /// Enqueue action for execution context to process.
         ///</summary>
         ///<param name="action"></param>
         void Enqueue(Action action);
 
         ///<summary>
-        /// Dequeues action for execution context to process.
+        /// Dequeue action for execution context to process.
         ///</summary>
         List<Action> DequeueAll();
 

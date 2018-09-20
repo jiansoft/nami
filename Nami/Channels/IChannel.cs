@@ -1,7 +1,7 @@
 using System;
-using jIAnSoft.Framework.Nami.Channels;
+using jIAnSoft.Nami.Channels;
 
-namespace jIAnSoft.Framework.Nami.Channels
+namespace jIAnSoft.Nami.Channels
 {
     /// <summary>
     /// A channel provides a conduit for messages. It provides methods for publishing and subscribing to messages. 
