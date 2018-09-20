@@ -21,8 +21,8 @@ Usage
 
 2.Use examples
 ``` csharp
-using jIAnSoft.Framework.Nami.Fibers;
-using jIAnSoft.Framework.Nami.TaskScheduler;
+using jIAnSoft.Nami.Clockwork;
+using jIAnSoft.Nami.Fibers;
 
 internal static class Program
 {
