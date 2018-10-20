@@ -1,9 +1,8 @@
+using jIAnSoft.Nami.Core;
 using System;
-using System.Threading;
-
 namespace jIAnSoft.Nami.Fibers
 {
-    using Core;
+
 
     /// <inheritdoc />
     /// <summary>
@@ -13,37 +12,25 @@ namespace jIAnSoft.Nami.Fibers
     {
         private readonly Subscriptions _subscriptions = new Subscriptions();
         private readonly object _lock = new object();
-        private readonly IThreadPool _threadPool;
+        private readonly IWorkThread _thread;
         private readonly IQueue _queue;
-
-        private readonly Scheduler _scheduler;
-        //private readonly IExecutor _executor;
-        
-        private ExecutionState _started = ExecutionState.Created;
+        private readonly IScheduler _scheduler;
+        private readonly IExecutor _executor;
+        private ExecutionState _state = ExecutionState.Created;
         private bool _flushPending;
 
         /// <summary>
         /// Construct new instance.
         /// </summary>
         /// <param name="threadPool"></param>
-        public PoolFiber(IThreadPool threadPool)
+        public PoolFiber(IWorkThread threadPool)
         {
             _queue = new DefaultQueue();
             _scheduler = new Scheduler(this);
-            _threadPool = threadPool;
-            //_executor = new DefaultExecutor();
+            _thread = threadPool;
+            _executor = new DefaultExecutor();
         }
-
-        /*
-        /// <inheritdoc />
-        /// <summary>
-        /// Create a pool fiber with the default thread pool.
-        /// </summary>
-        public PoolFiber(IExecutor executor) 
-            : this(new DefaultThreadPool())
-        {
-        }
-        */
+        
         /// <inheritdoc />
         /// <summary>
         /// Create a pool fiber with the default thread pool and default executor.
@@ -59,19 +46,19 @@ namespace jIAnSoft.Nami.Fibers
         /// <param name="action"></param>
         public void Enqueue(Action action)
         {
-            if (_started == ExecutionState.Stopped)
+            if (_state == ExecutionState.Stopped)
             {
                 return;
             }
             _queue.Enqueue(action);
             lock (_lock)
             {
-                if (_started == ExecutionState.Created)
+                if (_state == ExecutionState.Created)
                 {
                     return;
                 }
                 if (_flushPending) return;
-                _threadPool.Queue(Flush);
+                _thread.Queue(Flush);
                 _flushPending = true;
             }
         }
@@ -109,20 +96,13 @@ namespace jIAnSoft.Nami.Fibers
             {
                 return;
             }
-
-            //_executor.Execute(toExecute);
-            foreach (var ac in toExecute)
-            {
-                _threadPool.Queue(ac);
-            }
-
-            //Parallel.ForEach(toExecute, ac => { _pool.Queue(ac); });
+            _executor.ParallelExecute(toExecute);
             lock (_lock)
             {
                 if (_queue.Count() > 0)
                 {
                     // don't monopolize thread.
-                    _threadPool.Queue(Flush);
+                    _thread.Queue(Flush);
                 }
                 else
                 {
@@ -163,11 +143,12 @@ namespace jIAnSoft.Nami.Fibers
         /// </summary>
         public void Start()
         {
-            if (_started == ExecutionState.Running)
+            if (_state == ExecutionState.Running)
             {
-                throw new ThreadStateException("Already Started");
+               return;
             }
-            _started = ExecutionState.Running;
+            _state = ExecutionState.Running;
+            _thread.Start();
             //flush any pending events in queue
             Enqueue(() => { });
         }
@@ -178,8 +159,23 @@ namespace jIAnSoft.Nami.Fibers
         public void Stop()
         {
             _scheduler.Dispose();
-            _started = ExecutionState.Stopped;
+            _state = ExecutionState.Stopped;
             _subscriptions.Dispose();
+          
+        }
+
+        private bool _disposed;
+
+        private void Dispose(bool disposing)
+        {
+            if (!disposing || _disposed)
+            {
+                return;
+            }
+            Stop();
+            _queue.Dispose();
+            _executor.Dispose();
+            _disposed = true;
         }
 
         /// <inheritdoc />
@@ -188,7 +184,7 @@ namespace jIAnSoft.Nami.Fibers
         /// </summary>
         public void Dispose()
         {
-            Stop();
+            Dispose(true);
         }
     }
 }

@@ -38,11 +38,11 @@ namespace jIAnSoft.Nami.Core
         /// <summary>
         ///  BusyWaitQueue with default executor.
         /// </summary>
-        public BusyWaitQueue(int spinsBeforeTimeCheck, int msBeforeBlockingWait) 
+        public BusyWaitQueue(int spinsBeforeTimeCheck, int msBeforeBlockingWait)
             : this(new DefaultExecutor(), spinsBeforeTimeCheck, msBeforeBlockingWait)
         {
         }
-        
+
         /// <inheritdoc />
         /// <summary>
         /// Enqueue action.
@@ -56,7 +56,7 @@ namespace jIAnSoft.Nami.Core
                 Monitor.PulseAll(_lock);
             }
         }
-        
+
         public int Count()
         {
             lock (_lock)
@@ -71,7 +71,9 @@ namespace jIAnSoft.Nami.Core
         /// </summary>
         public void Run()
         {
-            while (ExecuteNextBatch()) {}
+            while (ExecuteNextBatch())
+            {
+            }
         }
 
         /// <inheritdoc />
@@ -86,17 +88,19 @@ namespace jIAnSoft.Nami.Core
                 Monitor.PulseAll(_lock);
             }
         }
-        
+
         public List<Action> DequeueAll()
         {
             var spins = 0;
             var stopwatch = Stopwatch.StartNew();
-            
+
             while (true)
             {
                 try
                 {
-                    while (!Monitor.TryEnter(_lock)) {}
+                    while (!Monitor.TryEnter(_lock))
+                    {
+                    }
 
                     if (!_running) break;
                     var toReturn = TryDequeue();
@@ -113,6 +117,7 @@ namespace jIAnSoft.Nami.Core
                 {
                     Monitor.Exit(_lock);
                 }
+
                 Thread.Yield();
             }
 
@@ -152,8 +157,13 @@ namespace jIAnSoft.Nami.Core
             {
                 return false;
             }
+
             _executor.Execute(toExecute);
             return true;
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

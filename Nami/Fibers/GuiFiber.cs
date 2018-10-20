@@ -1,8 +1,8 @@
-﻿using System;
+﻿using jIAnSoft.Nami.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using jIAnSoft.Nami.Core;
 
 namespace jIAnSoft.Nami.Fibers
 {
@@ -31,27 +31,34 @@ namespace jIAnSoft.Nami.Fibers
             _executor = executor;
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Enqueue a single action.
         /// </summary>
         /// <param name="action"></param>
         public void Enqueue(Action action)
         {
-            if (_started == ExecutionState.Stopped)
+            switch (_started)
             {
-                return;
-            }
-
-            if (_started == ExecutionState.Created)
-            {
-                lock (_lock)
+                case ExecutionState.Stopped:
+                    return;
+                case ExecutionState.Created:
                 {
-                    if (_started == ExecutionState.Created)
+                    lock (_lock)
                     {
-                        _queue.Add(action);
-                        return;
+                        if (_started == ExecutionState.Created)
+                        {
+                            _queue.Add(action);
+                            return;
+                        }
                     }
+
+                    break;
                 }
+                case ExecutionState.Running:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             _executionContext.Enqueue(() => _executor.Execute(action));
@@ -84,24 +91,27 @@ namespace jIAnSoft.Nami.Fibers
             get { return _subscriptions.Count; }
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// <see cref="IScheduler.Schedule(Action,long)"/>
+        /// <see cref="M:jIAnSoft.Nami.Core.IScheduler.Schedule(System.Action,System.Int64)" />
         /// </summary>
         public IDisposable Schedule(Action action, long firstInMs)
         {
             return _timer.Schedule(action, firstInMs);
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// <see cref="IScheduler.ScheduleOnInterval(Action,long,long)"/>
+        /// <see cref="M:jIAnSoft.Nami.Core.IScheduler.ScheduleOnInterval(System.Action,System.Int64,System.Int64)" />
         /// </summary>
         public IDisposable ScheduleOnInterval(Action action, long firstInMs, long regularInMs)
         {
             return _timer.ScheduleOnInterval(action, firstInMs, regularInMs);
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// <see cref="IFiber.Start()"/>
+        /// <see cref="M:jIAnSoft.Nami.Fibers.IFiber.Start" />
         /// </summary>
         public void Start()
         {
@@ -122,8 +132,9 @@ namespace jIAnSoft.Nami.Fibers
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// <see cref="IDisposable.Dispose()"/>
+        /// <see cref="M:System.IDisposable.Dispose" />
         /// </summary>
         public void Dispose()
         {

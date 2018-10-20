@@ -78,7 +78,9 @@ namespace jIAnSoft.Nami.Core
         /// </summary>
         public void Run()
         {
-            while (ExecuteNextBatch()) { }
+            while (ExecuteNextBatch())
+            {
+            }
         }
 
         /// <summary>
@@ -99,22 +101,26 @@ namespace jIAnSoft.Nami.Core
             {
                 return false;
             }
+
             while (MaxDepth > 0 && _actions.Count + toAdd > MaxDepth)
             {
                 if (MaxEnqueueWaitTimeInMs <= 0)
                 {
                     throw new QueueFullException(_actions.Count);
                 }
+
                 Monitor.Wait(_lock, MaxEnqueueWaitTimeInMs);
                 if (!_running)
                 {
                     return false;
                 }
+
                 if (MaxDepth > 0 && _actions.Count + toAdd > MaxDepth)
                 {
                     throw new QueueFullException(_actions.Count);
                 }
             }
+
             return true;
         }
 
@@ -130,6 +136,7 @@ namespace jIAnSoft.Nami.Core
                     Monitor.PulseAll(_lock);
                     return _toPass;
                 }
+
                 return null;
             }
         }
@@ -140,6 +147,7 @@ namespace jIAnSoft.Nami.Core
             {
                 Monitor.Wait(_lock);
             }
+
             return _running;
         }
 
@@ -150,8 +158,13 @@ namespace jIAnSoft.Nami.Core
             {
                 return false;
             }
+
             _executor.Execute(toExecute);
             return true;
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

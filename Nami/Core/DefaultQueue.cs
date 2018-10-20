@@ -7,7 +7,7 @@ namespace jIAnSoft.Nami.Core
 {
     public class DefaultQueue : IQueue
     {
-        private readonly object _lock = new object();
+        private object _lock = new object();
         private bool _running = true;
         private List<Action> _actions = new List<Action>();
         private List<Action> _toPass = new List<Action>();
@@ -23,17 +23,15 @@ namespace jIAnSoft.Nami.Core
 
         public List<Action> DequeueAll()
         {
-//            lock (_lock)
-//            {
-//                Lists.Swap(ref _actions, ref _toPass);
-//                _actions.Clear();
-//                return _toPass;
-//            }
-
             lock (_lock)
             {
                 if (!ReadyToDequeue())
                 {
+//                    if (_disposed)
+//                    {
+//                        _actions = null;
+//                        _toPass = null;
+//                    }
                     return null;
                 }
 
@@ -49,6 +47,7 @@ namespace jIAnSoft.Nami.Core
             {
                 Monitor.Wait(_lock);
             }
+
             return _running;
         }
 
@@ -70,6 +69,27 @@ namespace jIAnSoft.Nami.Core
             {
                 _running = false;
             }
+        }
+
+        private bool _disposed;
+
+        private void Dispose(bool disposing)
+        {
+            if (!disposing || _disposed)
+            {
+                return;
+            }
+
+            Stop();
+            Enqueue(() => { });
+            _actions?.Clear();
+            _toPass?.Clear();
+            _disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
         }
     }
 }

@@ -13,6 +13,7 @@ namespace jIAnSoft.Nami.Channels
         private readonly Queue<T> _queue = new Queue<T>();
         internal event Action SignalEvent;
   
+        /// <inheritdoc />
         /// <summary>
         /// Subscribe to executor messages. 
         /// </summary>
@@ -51,6 +52,7 @@ namespace jIAnSoft.Nami.Channels
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Publish message onto queue. Notify consumers of message.
         /// </summary>
@@ -61,11 +63,7 @@ namespace jIAnSoft.Nami.Channels
             {
                 _queue.Enqueue(message);
             }
-            var onSignal = SignalEvent;
-            if (onSignal != null)
-            {
-                onSignal();
-            }
+            SignalEvent?.Invoke();
         }
     }
 }

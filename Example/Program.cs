@@ -12,12 +12,14 @@ namespace Example
             IFiber thread = new ThreadFiber();
             pool.Start();
             thread.Start();
+           
             pool.ScheduleOnInterval(() => { PrintData("pool  ", DateTime.Now); }, 0, 150000);
             var td = thread.ScheduleOnInterval(() => { PrintData("thread", DateTime.Now); }, 0, 10000);
             thread.ScheduleOnInterval(() => { PrintData("thread ten second", DateTime.Now); }, 0, 10000);
             for (int i = 0; i < 100; i++)
             {
-                thread.Enqueue(() => { PrintData("thread  ", DateTime.Now); });
+                var i1 = i;
+                thread.Enqueue(() => { PrintData($"thread  {i1}", DateTime.Now); });
             }
 
             pool.Schedule(() =>
@@ -48,6 +50,7 @@ namespace Example
             Nami.Delay(2500).Do(() => { PrintData("Delay  ", DateTime.Now); });
             Nami.Delay(3500).Do(() => { PrintData("Delay  ", DateTime.Now); });
             Nami.Delay(4500).Do(() => { PrintData("Delay  ", DateTime.Now); });
+            thread.Dispose();
             Console.ReadKey();
         }
 

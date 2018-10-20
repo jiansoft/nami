@@ -5,9 +5,9 @@ namespace jIAnSoft.Nami.Core
 {
     /// <inheritdoc cref="ISchedulerRegistry" />
     /// <summary>
-    ///  Enqueues actions on to context after schedule elapses.  
+    ///  Enqueue actions on to context after schedule elapses.  
     /// </summary>
-    public class Scheduler : ISchedulerRegistry, IScheduler, IDisposable
+    internal class Scheduler : ISchedulerRegistry, IScheduler
     {
         private volatile bool _running = true;
         private readonly IExecutionContext _fiber;
@@ -23,7 +23,7 @@ namespace jIAnSoft.Nami.Core
 
         /// <inheritdoc />
         /// <summary>
-        ///  Enqueues action on to context after timer elapses.  
+        ///  Enqueue action on to context after timer elapses.  
         /// </summary>
         public IDisposable Schedule(Action action, long firstInMs)
         {
@@ -31,8 +31,14 @@ namespace jIAnSoft.Nami.Core
             {
                 return ScheduleOnInterval(action, firstInMs, Timeout.Infinite);
             }
+
             var pending = new PendingAction(action);
-            _fiber.Enqueue(pending.Execute);
+
+            if (_running)
+            {
+                _fiber.Enqueue(pending.Execute);
+            }
+
             return pending;
         }
 
@@ -43,7 +49,17 @@ namespace jIAnSoft.Nami.Core
         public IDisposable ScheduleOnInterval(Action action, long firstInMs, long regularInMs)
         {
             var pending = new TimerAction(this, action, firstInMs, regularInMs);
-            AddPending(pending);
+            //AddPending(pending);
+            _fiber.Enqueue(() =>
+            {
+                if (!_running)
+                {
+                    return;
+                }
+
+                _pending.Add(pending);
+                pending.Schedule();
+            });
             return pending;
         }
 
@@ -67,14 +83,33 @@ namespace jIAnSoft.Nami.Core
             _fiber.Enqueue(action);
         }
 
-        private void AddPending(TimerAction pending)
+//        private void AddPending(TimerAction pending)
+//        {
+//            _fiber.Enqueue(() =>
+//            {
+//                if (!_running)
+//                {
+//                    return;
+//                }
+//
+//                _pending.Add(pending);
+//                pending.Schedule();
+//            });
+//        }
+
+
+        private bool _disposed;
+
+        private void Dispose(bool disposing)
         {
-            _fiber.Enqueue(() =>
+            if (!disposing || _disposed)
             {
-                if (!_running) return;
-                _pending.Add(pending);
-                pending.Schedule();
-            });
+                return;
+            }
+
+            _running = false;
+            _pending.Dispose();
+            _disposed = true;
         }
 
         /// <inheritdoc />
@@ -83,8 +118,7 @@ namespace jIAnSoft.Nami.Core
         /// </summary>
         public void Dispose()
         {
-            _running = false;
-            _pending.Dispose();
+            Dispose(true);
         }
     }
 }

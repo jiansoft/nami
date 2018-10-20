@@ -3,10 +3,11 @@ using System.Collections.Generic;
 
 namespace jIAnSoft.Nami.Core
 {
+    /// <inheritdoc />
     /// <summary>
     /// Holds on to actions until the execution context can process them.
     /// </summary>
-    public interface IQueue
+    public interface IQueue : IDisposable
     {
         ///<summary>
         /// Enqueue action for execution context to process.

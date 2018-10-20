@@ -2,10 +2,11 @@ using System;
 
 namespace jIAnSoft.Nami.Core
 {
+    /// <inheritdoc />
     /// <summary>
     /// Methods for scheduling actions that will be executed in the future.
     /// </summary>
-    public interface IScheduler
+    public interface IScheduler :IDisposable
     {
         /// <summary>
         /// Schedules an action to be executed once.

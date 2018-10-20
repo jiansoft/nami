@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 
 namespace jIAnSoft.Nami.Fibers
 {
@@ -13,13 +12,12 @@ namespace jIAnSoft.Nami.Fibers
     public class ThreadFiber : IFiber
     {
         private readonly object _lock = new object();
-        private static int _threadCount;
         private readonly Subscriptions _subscriptions = new Subscriptions();
-        private readonly Thread _thread;
+        private readonly IWorkThread _thread;
         private readonly IQueue _queue;
-        private readonly Scheduler _scheduler;
+        private readonly IScheduler _scheduler;
         private readonly IExecutor _executor;
-        private ExecutionState _started = ExecutionState.Created;
+        private ExecutionState _state = ExecutionState.Created;
 
         /// <inheritdoc />
         /// <summary>
@@ -28,6 +26,7 @@ namespace jIAnSoft.Nami.Fibers
         public ThreadFiber()
             : this(new DefaultQueue())
         {
+
         }
 
         /// <inheritdoc />
@@ -36,53 +35,21 @@ namespace jIAnSoft.Nami.Fibers
         /// </summary>
         /// <param name="queue"></param>
         public ThreadFiber(IQueue queue)
-            : this(queue, $"ThreadFiber-{GetNextThreadId()}")
-        {
-        }
-
-        /// <inheritdoc />
-        /// <summary>
-        /// Creates a thread fiber with a specified name.
-        /// </summary>
-        /// /// <param name="threadName"></param>
-        public ThreadFiber(string threadName)
-            : this(new DefaultQueue(), threadName)
-        {
-        }
-        
-        /// <summary>
-        /// Creates a thread fiber.
-        /// </summary>
-        /// <param name="queue"></param>
-        /// <param name="threadName"></param>
-        /// <param name="isBackground"></param>
-        /// <param name="priority"></param>
-        public ThreadFiber(IQueue queue, string threadName, bool isBackground = true,
-            ThreadPriority priority = ThreadPriority.Normal)
         {
             _queue = queue;
             _executor = new DefaultExecutor();
             _scheduler = new Scheduler(this);
-            _thread = new Thread(RunThread)
-            {
-                Name = threadName,
-                IsBackground = isBackground,
-                Priority = priority
-            };
+            _thread = new DefaultThread();
+            _thread.Queue(RunOnThread);
         }
-
-        private void RunThread()
+        
+        private void RunOnThread()
         {
             while (ExecuteNextBatch())
             {
             }
         }
-
-        private static int GetNextThreadId()
-        {
-            return Interlocked.Increment(ref _threadCount);
-        }
-
+        
         /// <summary>
         /// Remove all actions and execute.
         /// </summary>
@@ -105,6 +72,10 @@ namespace jIAnSoft.Nami.Fibers
         /// <param name="action"></param>
         public void Enqueue(Action action)
         {
+            if (_state == ExecutionState.Stopped)
+            {
+                return;
+            }
             _queue.Enqueue(action);
         }
 
@@ -164,11 +135,11 @@ namespace jIAnSoft.Nami.Fibers
         /// </summary>
         public void Start()
         {
-            if (_started == ExecutionState.Running)
+            if (_state == ExecutionState.Running)
             {
-                throw new ThreadStateException("Already Started");
+                return;
             }
-            _started = ExecutionState.Running;
+            _state = ExecutionState.Running;
             _thread.Start();
         }
 
@@ -176,10 +147,25 @@ namespace jIAnSoft.Nami.Fibers
         {
             lock (_lock)
             {
-                _started = ExecutionState.Stopped;
+                _state = ExecutionState.Stopped;
                 _scheduler.Dispose();
                 _subscriptions.Dispose();
             }
+        }
+
+        private bool _disposed;
+
+        private void Dispose(bool disposing)
+        {
+            if (!disposing || _disposed)
+            {
+                return;
+            }
+
+            Stop();
+            _queue.Dispose();
+            _executor.Dispose();
+            _disposed = true;
         }
 
         /// <inheritdoc />
@@ -188,9 +174,7 @@ namespace jIAnSoft.Nami.Fibers
         /// </summary>
         public void Dispose()
         {
-            _scheduler.Dispose();
-            _subscriptions.Dispose();
-            _queue.Stop();
+            Dispose(true);
         }
     }
 }
