@@ -1,5 +1,7 @@
 using jIAnSoft.Nami.Core;
 using System;
+using System.Threading.Tasks;
+
 namespace jIAnSoft.Nami.Fibers
 {
 
@@ -22,21 +24,12 @@ namespace jIAnSoft.Nami.Fibers
         /// <summary>
         /// Construct new instance.
         /// </summary>
-        /// <param name="threadPool"></param>
-        public PoolFiber(IWorkThread threadPool)
+        public PoolFiber()
         {
             _queue = new DefaultQueue();
             _scheduler = new Scheduler(this);
-            _thread = threadPool;
+            _thread = new DefaultThreadPool();
             _executor = new DefaultExecutor();
-        }
-        
-        /// <inheritdoc />
-        /// <summary>
-        /// Create a pool fiber with the default thread pool and default executor.
-        /// </summary>
-        public PoolFiber() : this(new DefaultThreadPool())
-        {
         }
 
         /// <inheritdoc />
@@ -50,6 +43,7 @@ namespace jIAnSoft.Nami.Fibers
             {
                 return;
             }
+
             _queue.Enqueue(action);
             lock (_lock)
             {
@@ -57,7 +51,12 @@ namespace jIAnSoft.Nami.Fibers
                 {
                     return;
                 }
-                if (_flushPending) return;
+
+                if (_flushPending)
+                {
+                    return;
+                }
+
                 _thread.Queue(Flush);
                 _flushPending = true;
             }
@@ -94,9 +93,15 @@ namespace jIAnSoft.Nami.Fibers
             var toExecute = _queue.DequeueAll();
             if (toExecute == null)
             {
+                _flushPending = false;
                 return;
             }
-            _executor.ParallelExecute(toExecute);
+            
+            foreach (var ac in toExecute)
+            {
+                _thread.Queue(ac);
+            }
+            
             lock (_lock)
             {
                 if (_queue.Count() > 0)

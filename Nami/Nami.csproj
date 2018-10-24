@@ -3,7 +3,7 @@
     <PackageId>jIAnSoft.Nami</PackageId>
     <PackageTags></PackageTags>
     <Title>Nami</Title>
-    <Description></Description>
+    <Description>Nami is a high performance C# threading library. This project fork from retlang.</Description>
     <Authors>Eddie</Authors>
     <TargetFrameworks>net451;netstandard2.0</TargetFrameworks>
     <RootNamespace>jIAnSoft.Nami</RootNamespace>
@@ -16,9 +16,9 @@
     <PackageProjectUrl>https://github.com/jiansoft/nami</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jiansoft/nami.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>18.9.20.1613</Version>
-    <AssemblyVersion>18.9.20.1613</AssemblyVersion>
-    <FileVersion>18.9.20.1613</FileVersion>
+    <Version>18.10.23</Version>
+    <AssemblyVersion>18.10.23</AssemblyVersion>
+    <FileVersion>18.10.23</FileVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net451|AnyCPU'">

@@ -7,7 +7,7 @@ namespace jIAnSoft.Nami.Core
 {
     public class DefaultQueue : IQueue
     {
-        private object _lock = new object();
+        private readonly object _lock = new object();
         private bool _running = true;
         private List<Action> _actions = new List<Action>();
         private List<Action> _toPass = new List<Action>();
@@ -27,11 +27,6 @@ namespace jIAnSoft.Nami.Core
             {
                 if (!ReadyToDequeue())
                 {
-//                    if (_disposed)
-//                    {
-//                        _actions = null;
-//                        _toPass = null;
-//                    }
                     return null;
                 }
 

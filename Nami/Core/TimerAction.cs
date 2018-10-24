@@ -9,7 +9,6 @@ namespace jIAnSoft.Nami.Core
         private Action _action;
         private readonly long _firstIntervalInMs;
         private readonly long _intervalInMs;
-
         private Timer _timer;
         private bool _cancelled;
 

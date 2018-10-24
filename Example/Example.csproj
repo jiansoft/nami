@@ -41,6 +41,9 @@
    <ItemGroup>
     <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+   <ItemGroup>
+     <PackageReference Include="NLog.Config" Version="4.5.10" />
+   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nami\Nami.csproj" />
   </ItemGroup>

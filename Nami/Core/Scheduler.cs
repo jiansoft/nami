@@ -36,7 +36,7 @@ namespace jIAnSoft.Nami.Core
 
             if (_running)
             {
-                _fiber.Enqueue(pending.Execute);
+                Enqueue(pending.Execute);
             }
 
             return pending;
@@ -50,7 +50,7 @@ namespace jIAnSoft.Nami.Core
         {
             var pending = new TimerAction(this, action, firstInMs, regularInMs);
             //AddPending(pending);
-            _fiber.Enqueue(() =>
+            Enqueue(() =>
             {
                 if (!_running)
                 {
@@ -85,7 +85,7 @@ namespace jIAnSoft.Nami.Core
 
 //        private void AddPending(TimerAction pending)
 //        {
-//            _fiber.Enqueue(() =>
+//            Enqueue(() =>
 //            {
 //                if (!_running)
 //                {
@@ -96,7 +96,6 @@ namespace jIAnSoft.Nami.Core
 //                pending.Schedule();
 //            });
 //        }
-
 
         private bool _disposed;
 

@@ -25,6 +25,12 @@ namespace jIAnSoft.Nami.Clockwork
         Milliseconds
     }
 
+    public enum TimingAfterOrBeforeExecuteTask
+    {
+        BeforeExecuteTask = 1,
+        AfterExecuteTask
+    }
+
     public class Job : IDisposable
     {
         private IFiber _fiber;
@@ -38,6 +44,7 @@ namespace jIAnSoft.Nami.Clockwork
         private DateTime _nextRunTime;
         private IDisposable _taskDisposer;
         private DelayUnit _delayUnit;
+        private TimingAfterOrBeforeExecuteTask _timingMode;
 
         public Job(int interval, IFiber fiber)
         {
@@ -46,6 +53,7 @@ namespace jIAnSoft.Nami.Clockwork
             _second = -1;
             _interval = interval;
             _fiber = fiber;
+            _timingMode = TimingAfterOrBeforeExecuteTask.BeforeExecuteTask;
             _delayUnit = DelayUnit.None;
         }
 
@@ -143,6 +151,27 @@ namespace jIAnSoft.Nami.Clockwork
             return this;
         }
 
+        // Start timing after the task is executed
+        public Job AfterExecuteTask() {
+            if (_delayUnit == DelayUnit.None)
+            {
+                _timingMode = TimingAfterOrBeforeExecuteTask.AfterExecuteTask;
+            }
+            return this;
+        }
+
+        //Start timing before the task is executed
+        public Job BeforeExecuteTask()
+        {
+            if (_delayUnit == DelayUnit.None)
+            {
+                _timingMode = TimingAfterOrBeforeExecuteTask.BeforeExecuteTask;
+
+            }
+
+            return this;
+        }
+        
         public IDisposable Do(Action action)
         {
             _task = action;
@@ -170,10 +199,11 @@ namespace jIAnSoft.Nami.Clockwork
                         case DelayUnit.Milliseconds:
                             _nextRunTime = now.AddMilliseconds(_interval);
                             break;
+                        case DelayUnit.None:
+                            break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                    //_nextRunTime = now.AddMilliseconds(_interval);
                     break;
                 case Unit.Weeks:
                     var i = (7 - (now.DayOfWeek - _weekday)) % 7;
@@ -240,7 +270,7 @@ namespace jIAnSoft.Nami.Clockwork
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            var firstInMs = Convert.ToInt64((_nextRunTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond);
+            var firstInMs = (_nextRunTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
             _taskDisposer = _fiber.Schedule(CanDo, firstInMs);
             return this;
         }
@@ -249,7 +279,18 @@ namespace jIAnSoft.Nami.Clockwork
         {
             if (DateTime.Now.Ticks >= _nextRunTime.Ticks)
             {
-                _fiber.Enqueue(_task);
+                if (_unit == Unit.Delay || _timingMode == TimingAfterOrBeforeExecuteTask.BeforeExecuteTask)
+                {
+                    _fiber.Enqueue(_task);
+                }
+                else
+                {
+                    var s = DateTime.Now.Ticks;
+                    _task();
+                    var f = DateTime.Now.Ticks - s;
+                    _nextRunTime = _nextRunTime.AddTicks(f);
+                }
+               
                 switch (_unit)
                 {
                     case Unit.Delay:
@@ -280,11 +321,8 @@ namespace jIAnSoft.Nami.Clockwork
             {
                 _taskDisposer.Dispose();
             }
-            var adjustTime = Convert.ToInt64((_nextRunTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond);
-            if (adjustTime < 1)
-            {
-                adjustTime = 1;
-            }
+
+            var adjustTime = (_nextRunTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
             _taskDisposer = _fiber.Schedule(CanDo, adjustTime);
         }
 

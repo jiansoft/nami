@@ -49,23 +49,7 @@ namespace jIAnSoft.Nami.Core
 
             toExecute();
         }
-
-        /// <inheritdoc />
-        /// <summary>
-        /// </summary>
-        /// <param name="toExecute"></param>
-
-        public void ParallelExecute(IEnumerable<Action> toExecute)
-        {
-            if (!IsEnabled)
-            {
-                return;
-            }
-
-            var copy = toExecute.ToArray();
-            Parallel.ForEach(copy, ac => ac());
-        }
-
+        
         /// <summary>
         /// When disabled, actions will be ignored by executor. The executor is typically disabled at shutdown
         /// to prevent any pending actions from being executed. 

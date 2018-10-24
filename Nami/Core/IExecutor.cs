@@ -10,12 +10,6 @@ namespace jIAnSoft.Nami.Core
     public interface IExecutor :IDisposable
     {
         /// <summary>
-        /// Executes all actions by parallel.
-        /// </summary>
-        /// <param name="toExecute"></param>
-        void ParallelExecute(IEnumerable<Action> toExecute);
-
-        /// <summary>
         /// Executes all actions.
         /// </summary>
         /// <param name="toExecute"></param>
