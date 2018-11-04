@@ -21,6 +21,11 @@ namespace jIAnSoft.Nami.Clockwork
             return new Job(interval, Instance._fiber);
         }
 
+        public static Job RightNow()
+        {
+            return Delay(0);
+        }
+
         public static Job Delay(int interval)
         {
             return new Job(interval, Unit.Delay, Instance._fiber, DelayUnit.Milliseconds);

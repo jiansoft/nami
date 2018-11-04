@@ -12,7 +12,7 @@ namespace Example
 
         private static void Main(string[] args)
         {
-
+            Nami.RightNow().Do(() => { PrintData("RightNow   ", DateTime.Now); });
             IFiber pool = new PoolFiber();
             IFiber thread = new ThreadFiber();
             pool.Start();
