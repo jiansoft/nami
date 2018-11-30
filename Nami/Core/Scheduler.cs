@@ -49,17 +49,15 @@ namespace jIAnSoft.Nami.Core
         public IDisposable ScheduleOnInterval(Action action, long firstInMs, long regularInMs)
         {
             var pending = new TimerAction(this, action, firstInMs, regularInMs);
-            //AddPending(pending);
-            Enqueue(() =>
-            {
-                if (!_running)
-                {
-                    return;
-                }
 
-                _pending.Add(pending);
-                pending.Schedule();
-            });
+            if (!_running)
+            {
+                return pending;
+            }
+
+            _pending.Add(pending);
+            pending.Schedule();
+
             return pending;
         }
 
@@ -82,20 +80,6 @@ namespace jIAnSoft.Nami.Core
         {
             _fiber.Enqueue(action);
         }
-
-//        private void AddPending(TimerAction pending)
-//        {
-//            Enqueue(() =>
-//            {
-//                if (!_running)
-//                {
-//                    return;
-//                }
-//
-//                _pending.Add(pending);
-//                pending.Schedule();
-//            });
-//        }
 
         private bool _disposed;
 
