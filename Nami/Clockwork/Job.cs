@@ -207,7 +207,7 @@ namespace jIAnSoft.Nami.Clockwork
                     break;
                 case Unit.Weeks:
                     var i = (7 - (now.DayOfWeek - _weekday)) % 7;
-                    _nextRunTime = new DateTime(now.Year, now.Month, now.Day + i, _hour, _minute, _second);
+                    _nextRunTime = new DateTime(now.Year, now.Month, now.Day , _hour, _minute, _second).AddDays(i);
                     if (_nextRunTime < now)
                     {
                         _nextRunTime = _nextRunTime.AddDays(7);
@@ -328,9 +328,7 @@ namespace jIAnSoft.Nami.Clockwork
 
         public void Dispose()
         {
-            _fiber = null;
             _taskDisposer?.Dispose();
-            _task = null;
         }
     }
 }

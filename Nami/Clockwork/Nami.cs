@@ -64,5 +64,10 @@ namespace jIAnSoft.Nami.Clockwork
         {
             return new Job(DayOfWeek.Saturday, Instance._fiber);
         }
+
+        public static Job Everyday()
+        {
+            return Every(1).Days();
+        }
     }
 }

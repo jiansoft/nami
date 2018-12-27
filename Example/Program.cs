@@ -13,6 +13,7 @@ namespace Example
         private static void Main(string[] args)
         {
             Nami.RightNow().Do(() => { PrintData("RightNow   ", DateTime.Now); });
+            Nami.Everyday().At(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second+1).Do(() => { PrintData("Everyday   ", DateTime.Now); });
             IFiber pool = new PoolFiber();
             IFiber thread = new ThreadFiber();
             pool.Start();
