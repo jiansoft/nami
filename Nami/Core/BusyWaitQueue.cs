@@ -12,7 +12,6 @@ namespace jIAnSoft.Nami.Core
     public class BusyWaitQueue : IQueue
     {
         private readonly object _lock = new object();
-        private readonly IExecutor _executor;
         private readonly int _spinsBeforeTimeCheck;
         private readonly int _msBeforeBlockingWait;
 
@@ -27,22 +26,12 @@ namespace jIAnSoft.Nami.Core
         ///<param name="executor"></param>
         ///<param name="spinsBeforeTimeCheck"></param>
         ///<param name="msBeforeBlockingWait"></param>
-        public BusyWaitQueue(IExecutor executor, int spinsBeforeTimeCheck, int msBeforeBlockingWait)
+        public BusyWaitQueue(int spinsBeforeTimeCheck, int msBeforeBlockingWait)
         {
-            _executor = executor;
             _spinsBeforeTimeCheck = spinsBeforeTimeCheck;
             _msBeforeBlockingWait = msBeforeBlockingWait;
         }
-
-        /// <inheritdoc />
-        /// <summary>
-        ///  BusyWaitQueue with default executor.
-        /// </summary>
-        public BusyWaitQueue(int spinsBeforeTimeCheck, int msBeforeBlockingWait)
-            : this(new DefaultExecutor(), spinsBeforeTimeCheck, msBeforeBlockingWait)
-        {
-        }
-
+        
         /// <inheritdoc />
         /// <summary>
         /// Enqueue action.
@@ -71,8 +60,10 @@ namespace jIAnSoft.Nami.Core
         /// </summary>
         public void Run()
         {
-            while (ExecuteNextBatch())
+            lock (_lock)
             {
+                _running = true;
+                Monitor.PulseAll(_lock);
             }
         }
 
@@ -102,15 +93,29 @@ namespace jIAnSoft.Nami.Core
                     {
                     }
 
-                    if (!_running) break;
+                    if (!_running)
+                    {
+                        break;
+                    }
+
                     var toReturn = TryDequeue();
-                    if (toReturn != null) return toReturn;
+                    if (toReturn != null)
+                    {
+                        return toReturn;
+                    }
 
                     if (TryBlockingWait(stopwatch, ref spins))
                     {
-                        if (!_running) break;
+                        if (!_running)
+                        {
+                            break;
+                        }
+
                         toReturn = TryDequeue();
-                        if (toReturn != null) return toReturn;
+                        if (toReturn != null)
+                        {
+                            return toReturn;
+                        }
                     }
                 }
                 finally
@@ -132,7 +137,11 @@ namespace jIAnSoft.Nami.Core
             }
 
             spins = 0;
-            if (stopwatch.ElapsedMilliseconds <= _msBeforeBlockingWait) return false;
+            if (stopwatch.ElapsedMilliseconds <= _msBeforeBlockingWait)
+            {
+                return false;
+            }
+
             Monitor.Wait(_lock);
             stopwatch.Restart();
             return true;
@@ -140,30 +149,34 @@ namespace jIAnSoft.Nami.Core
 
         private List<Action> TryDequeue()
         {
-            if (_actions.Count > 0)
+            if (_actions.Count <= 0)
             {
-                Lists.Swap(ref _actions, ref _toPass);
-                _actions.Clear();
-                return _toPass;
+                return null;
             }
 
-            return null;
+            Lists.Swap(ref _actions, ref _toPass);
+            _actions.Clear();
+            return _toPass;
         }
+        
+        private bool _disposed;
 
-        private bool ExecuteNextBatch()
+        private void Dispose(bool disposing)
         {
-            var toExecute = DequeueAll();
-            if (toExecute == null)
+            if (!disposing || _disposed)
             {
-                return false;
+                return;
             }
 
-            _executor.Execute(toExecute);
-            return true;
+            _disposed = true;
+            Stop();
+            _actions?.Clear();
+            _toPass?.Clear();
         }
 
         public void Dispose()
         {
+            Dispose(true);
         }
     }
 }

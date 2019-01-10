@@ -128,16 +128,16 @@ namespace jIAnSoft.Nami.Core
         {
             lock (_lock)
             {
-                if (ReadyToDequeue())
+                if (!ReadyToDequeue())
                 {
-                    Lists.Swap(ref _actions, ref _toPass);
-                    _actions.Clear();
-
-                    Monitor.PulseAll(_lock);
-                    return _toPass;
+                    return null;
                 }
+                
+                Lists.Swap(ref _actions, ref _toPass);
+                _actions.Clear();
 
-                return null;
+                Monitor.PulseAll(_lock);
+                return _toPass;
             }
         }
 

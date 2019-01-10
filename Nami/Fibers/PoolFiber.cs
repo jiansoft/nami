@@ -166,6 +166,7 @@ namespace jIAnSoft.Nami.Fibers
             _scheduler.Dispose();
             _state = ExecutionState.Stopped;
             _subscriptions.Dispose();
+            _queue.Stop();
           
         }
 

@@ -14,6 +14,11 @@ namespace jIAnSoft.Nami.Core
 
         public void Enqueue(Action action)
         {
+            if (!_running)
+            {
+                return;
+            }
+
             lock (_lock)
             {
                 _actions.Add(action);
@@ -56,6 +61,11 @@ namespace jIAnSoft.Nami.Core
 
         public void Run()
         {
+            lock (_lock)
+            {
+                _running = true;
+                Monitor.PulseAll(_lock);
+            }
         }
 
         public void Stop()
@@ -63,6 +73,7 @@ namespace jIAnSoft.Nami.Core
             lock (_lock)
             {
                 _running = false;
+                Monitor.PulseAll(_lock);
             }
         }
 
@@ -74,12 +85,10 @@ namespace jIAnSoft.Nami.Core
             {
                 return;
             }
-
+            _disposed = true;
             Stop();
-            Enqueue(() => { });
             _actions?.Clear();
             _toPass?.Clear();
-            _disposed = true;
         }
 
         public void Dispose()
