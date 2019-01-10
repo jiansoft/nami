@@ -39,6 +39,11 @@ namespace jIAnSoft.Nami.Core
         /// <param name="action"></param>
         public void Enqueue(Action action)
         {
+            if (!_running)
+            {
+                return;
+            }
+            
             lock (_lock)
             {
                 _actions.Add(action);

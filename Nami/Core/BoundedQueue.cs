@@ -21,20 +21,9 @@ namespace jIAnSoft.Nami.Core
         ///<summary>
         /// Creates a bounded queue with a custom executor.
         ///</summary>
-        ///<param name="executor"></param>
-        public BoundedQueue(IExecutor executor)
+        public BoundedQueue()
         {
             MaxDepth = -1;
-            _executor = executor;
-        }
-
-        /// <inheritdoc />
-        /// <summary>
-        ///  Creates a bounded queue with the default executor.
-        /// </summary>
-        public BoundedQueue()
-            : this(new DefaultExecutor())
-        {
         }
 
         /// <summary>
@@ -54,13 +43,19 @@ namespace jIAnSoft.Nami.Core
         /// <param name="action"></param>
         public void Enqueue(Action action)
         {
+            if (!_running)
+            {
+                return;
+            }
+            
             lock (_lock)
             {
-                if (SpaceAvailable(1))
+                if (!SpaceAvailable(1))
                 {
-                    _actions.Add(action);
-                    Monitor.PulseAll(_lock);
+                    return;
                 }
+                _actions.Add(action);
+                Monitor.PulseAll(_lock);
             }
         }
 
@@ -78,11 +73,14 @@ namespace jIAnSoft.Nami.Core
         /// </summary>
         public void Run()
         {
-            while (ExecuteNextBatch())
+            lock (_lock)
             {
+                _running = true;
+                Monitor.PulseAll(_lock);
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Stop consuming actions.
         /// </summary>
@@ -151,20 +149,26 @@ namespace jIAnSoft.Nami.Core
             return _running;
         }
 
-        private bool ExecuteNextBatch()
+        
+        private bool _disposed;
+
+        private void Dispose(bool disposing)
         {
-            var toExecute = DequeueAll();
-            if (toExecute == null)
+            if (!disposing || _disposed)
             {
-                return false;
+                return;
             }
 
-            _executor.Execute(toExecute);
-            return true;
+            _disposed = true;
+            Stop();
+            _actions?.Clear();
+            _toPass?.Clear();
         }
 
+        
         public void Dispose()
         {
+            Dispose(true);
         }
     }
 }

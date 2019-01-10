@@ -30,7 +30,7 @@ namespace jIAnSoft.Nami.Core
         {
             lock (_lock)
             {
-                if (!ReadyToDequeue())
+                if (!ReadyToDequeue() || _disposed)
                 {
                     return null;
                 }
