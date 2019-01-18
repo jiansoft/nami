@@ -12,7 +12,9 @@ namespace Example
 
         private static void Main(string[] args)
         {
-            Nami.RightNow().Do(() => { PrintData("RightNow   ", DateTime.Now); });
+            Nami.RightNow().Times(3).Do(() => { PrintData("RightNow 3 times", DateTime.Now); });
+            Nami.RightNow().Do(() => { PrintData("Just RightNow   ", DateTime.Now); });
+            
             Nami.Everyday().At(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second+1).Do(() => { PrintData("Everyday   ", DateTime.Now); });
             IFiber pool = new PoolFiber();
             IFiber thread = new ThreadFiber();
@@ -32,7 +34,7 @@ namespace Example
             {
                 Console.WriteLine($"td Dispose");
                 td.Dispose();
-                for (int i = 0; i < 10; i++)
+                for (var i = 0; i < 10; i++)
                 {
                     thread.Enqueue(() => { PrintData("Schedule start thread  ", DateTime.Now); });
                 }
