@@ -28,8 +28,8 @@ namespace jIAnSoft.Nami.Clockwork
 
         public static Job Delay(int interval)
         {
-            var j = new Job(interval, Unit.Delay, Instance._fiber, DelayUnit.Milliseconds);
-            return j.Times(1);
+            var j = new Job(interval, IntervalUnit.Milliseconds, Instance._fiber);
+            return j.Times(1).Model(JobModel.Delay);
         }
 
         public static Job EverySunday()

@@ -14,7 +14,9 @@ namespace Example
         {
             Nami.RightNow().Times(3).Do(() => { PrintData("RightNow 3 times", DateTime.Now); });
             Nami.RightNow().Do(() => { PrintData("Just RightNow   ", DateTime.Now); });
-            
+            Nami.Delay(1000).Milliseconds().Do(() => { PrintData("Just Nami.Delay(1000)   ", DateTime.Now); });
+            Nami.Every(1000).Milliseconds().Do(() => { PrintData("Just Nami.Every(1000)   ", DateTime.Now); });
+           
             Nami.Everyday().At(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second+1).Do(() => { PrintData("Everyday   ", DateTime.Now); });
             IFiber pool = new PoolFiber();
             IFiber thread = new ThreadFiber();
