@@ -12,12 +12,99 @@ namespace Example
 
         private static void Main(string[] args)
         {
+            var now = DateTime.Now;
+            Log.Info($"Start at {now:HH:mm:ss}");
+
+            Nami.Every(450).Milliseconds().Times(2).Do(() => { PrintData("Every(450).Milliseconds", DateTime.Now); });
+            Nami.Every(1).Seconds().Times(3).Do(() => { PrintData("Every 1 Seconds Times 3", DateTime.Now); });
+            Nami.Every(10).Minutes().Do(() => { PrintData("Every 10 Minutes", DateTime.Now); });
+            Nami.Every(10).Minutes().AfterExecuteTask().Do(() =>
+            {
+                PrintData("Every 10 Minutes and sleep 4 Minutes", DateTime.Now);
+                Thread.Sleep(4 * 60 * 1000);
+            });
+            Nami.Every(60).Seconds().AfterExecuteTask().Do(() =>
+            {
+                PrintData("Every 60 Seconds and sleep 4 Minutes", DateTime.Now);
+                Thread.Sleep(4 * 60 * 1000);
+            });
+            Nami.Delay(4000).Times(4).Do(() => { PrintData("Delay 4000 ms Times 4", DateTime.Now); });
+
+            now = now.AddSeconds(17);
+            Nami.EveryMonday().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Monday", DateTime.Now); });
+            Nami.EveryTuesday().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Tuesday", DateTime.Now); });
+            Nami.EveryWednesday().At(now.Hour, now.Minute, now.Second).Do(() =>{PrintData("Wednesday", DateTime.Now);});
+            Nami.EveryThursday().At(now.Hour, now.Minute, now.Second).Do(() =>{PrintData("Thursday", DateTime.Now);});
+            Nami.EveryFriday().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Friday", DateTime.Now); });
+            Nami.EverySaturday().At(now.Hour, now.Minute, now.Second).Do(() =>{PrintData("Saturday", DateTime.Now);});
+            Nami.EverySunday().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Sunday", DateTime.Now); });
+
+            now = now.AddSeconds(1);
+            Nami.Every(1).Hours().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Every 1 Hours", DateTime.Now); });
+
+            now = now.AddSeconds(1);
+            Nami.Every(1).Days().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Every 1 Days", DateTime.Now); });
+
+            now = now.AddSeconds(1);
+            Nami.Everyday().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Everyday", DateTime.Now); });
+
+            Console.ReadKey();
+
+            Nami.EverySunday().At(6, 0, 0).Do(() => { PrintData("EverySunday().Days().At(6,0,0)   ", DateTime.Now); });
+            Nami.EveryMonday().At(6, 0, 0).Do(() => { PrintData("EveryMonday().Days().At(6,0,0)   ", DateTime.Now); });
+            Nami.EveryMonday().At(12, 0, 0).Do(() =>
+            {
+                PrintData("EveryMonday().Days().At(12,0,0)   ", DateTime.Now);
+            });
+
+            Nami.EveryTuesday().At(6, 0, 0).Do(() => { PrintData("EveryMonday().Days().At(6,0,0)   ", DateTime.Now); });
+            Nami.EveryTuesday().At(12, 0, 0)
+                .Do(() => { PrintData("EveryMonday().Days().At(12,0,0)   ", DateTime.Now); });
+
+            Nami.Everyday().At(6, 0, 0).Do(() => { PrintData("Everyday().At(6,0,0)   ", DateTime.Now); });
+
+            Nami.Every(1).Days().Do(() => { PrintData("Every(1).Days()   ", DateTime.Now); });
+            Nami.Every(1).Days().At(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 2).Do(() =>
+            {
+                PrintData("Every(1).Days().At   ", DateTime.Now);
+            });
+            Nami.Every(2).Days().At(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 2).Do(() =>
+            {
+                PrintData("Every(2).Days().At   ", DateTime.Now);
+            });
+
+            Nami.Every(1).Hours().At(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 2).Do(() =>
+            {
+                PrintData("Every Hours   ", DateTime.Now);
+            });
+            Nami.Every(2).Hours().At(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 2).Do(() =>
+            {
+                PrintData("Every 2 Hours   ", DateTime.Now);
+            });
+            Nami.Every(1).Minutes().Do(() => { PrintData("Every(1).Minutes()", DateTime.Now); });
+            Nami.Every(2).Minutes().Do(() => { PrintData("Every(2).Minutes()", DateTime.Now); });
+
+            Nami.Delay(1).Seconds().Times(5).Do(() =>
+            {
+                Log.Info($"Nami.Delay(1).Seconds() {DateTime.Now:HH:mm:ss}");
+            });
+            var d = Nami.Delay(1).Seconds().Times(5).Do(() => { PrintData(" Dispose ", DateTime.Now); });
+            d.Dispose();
+            Nami.Delay(30).Seconds().Times(5).Do(() => { PrintData("Delay(30) 5 times", DateTime.Now); });
             Nami.RightNow().Times(3).Do(() => { PrintData("RightNow 3 times", DateTime.Now); });
             Nami.RightNow().Do(() => { PrintData("Just RightNow   ", DateTime.Now); });
-            Nami.Delay(1000).Milliseconds().Do(() => { PrintData("Just Nami.Delay(1000)   ", DateTime.Now); });
-            Nami.Every(1000).Milliseconds().Do(() => { PrintData("Just Nami.Every(1000)   ", DateTime.Now); });
-           
-            Nami.Everyday().At(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second+1).Do(() => { PrintData("Everyday   ", DateTime.Now); });
+            Nami.Delay(1000).Milliseconds().Do(() =>
+            {
+                PrintData($"Just Delay(1000) execute:{DateTime.Now:HH:mm:ss.fff}", DateTime.Now);
+            });
+            Nami.Every(60000).Milliseconds().Do(() =>
+            {
+                PrintData("Just Every(60000).Milliseconds()   ", DateTime.Now);
+            });
+            Nami.Everyday().At(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 5)
+                .Do(() => { PrintData("Everyday   ", DateTime.Now); });
+
+            Console.ReadKey();
             IFiber pool = new PoolFiber();
             IFiber thread = new ThreadFiber();
             pool.Start();
@@ -77,7 +164,7 @@ namespace Example
 
         private static void PrintData(string name, DateTime date)
         {
-            Log.Info($"{name} PrintData => {date:yyyy-MM-dd HH:mm:ss.fff}");
+            Log.Info($"{name} {date:yyyy-MM-dd HH:mm:ss.fff}");
         }
 
         private static void RunSleepCron(string s, int second, int sleep)
@@ -90,6 +177,7 @@ namespace Example
 
             Thread.Sleep(sleep * 1000);
         }
+
         private static void RunSleepCron(string s, int second)
         {
             Log.Info($"{s} every {second} second now {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}");

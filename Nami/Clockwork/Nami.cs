@@ -16,11 +16,6 @@ namespace jIAnSoft.Nami.Clockwork
             _fiber.Start();
         }
 
-        public static Job Every(int interval)
-        {
-            return new Job(interval, Instance._fiber);
-        }
-
         public static Job RightNow()
         {
             return Delay(0);
@@ -28,42 +23,47 @@ namespace jIAnSoft.Nami.Clockwork
 
         public static Job Delay(int interval)
         {
-            var j = new Job(interval, IntervalUnit.Milliseconds, Instance._fiber);
-            return j.Times(1).Model(JobModel.Delay);
+            return new Job(Instance._fiber).Interval(interval).Times(1).Model(JobModel.Delay).Milliseconds();
+        }
+
+        public static Job Every(int interval)
+        {
+            return new Job(Instance._fiber).Interval(interval);
         }
 
         public static Job EverySunday()
         {
-            return new Job(DayOfWeek.Sunday, Instance._fiber);
+            return new Job(Instance._fiber).Interval(1).Week(DayOfWeek.Sunday);
         }
 
         public static Job EveryMonday()
         {
-            return new Job(DayOfWeek.Monday, Instance._fiber);
+            return new Job(Instance._fiber).Interval(1).Week(DayOfWeek.Monday);
         }
 
         public static Job EveryTuesday()
         {
-            return new Job(DayOfWeek.Tuesday, Instance._fiber);
+            return new Job(Instance._fiber).Interval(1).Week(DayOfWeek.Tuesday);
         }
 
         public static Job EveryWednesday()
         {
-            return new Job(DayOfWeek.Wednesday, Instance._fiber);
+            return new Job(Instance._fiber).Interval(1).Week(DayOfWeek.Wednesday);
         }
+
         public static Job EveryThursday()
         {
-            return new Job(DayOfWeek.Thursday, Instance._fiber);
+            return new Job(Instance._fiber).Interval(1).Week(DayOfWeek.Thursday);
         }
 
         public static Job EveryFriday()
         {
-            return new Job(DayOfWeek.Friday, Instance._fiber);
+            return new Job(Instance._fiber).Interval(1).Week(DayOfWeek.Friday);
         }
 
         public static Job EverySaturday()
         {
-            return new Job(DayOfWeek.Saturday, Instance._fiber);
+            return new Job(Instance._fiber).Interval(1).Week(DayOfWeek.Saturday);
         }
 
         public static Job Everyday()

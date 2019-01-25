@@ -11,18 +11,12 @@ namespace jIAnSoft.Nami.Clockwork
 
     public enum IntervalUnit
     {
-        Weeks,
-        Days,
-        Hours,
-        Minutes,
-        Seconds,
-        Milliseconds
-    }
-
-    internal enum TimingAfterOrBeforeExecuteTask
-    {
-        BeforeExecuteTask = 1,
-        AfterExecuteTask
+        Millisecond = 1,
+        Second = 1000 * Millisecond,
+        Minute = 60 * Second,
+        Hour = 60 * Minute,
+        Day = 24 * Hour,
+        Week = 7 * Day
     }
 
     public class Job : IDisposable
@@ -34,35 +28,23 @@ namespace jIAnSoft.Nami.Clockwork
         private int _second;
         private long _runTimes;
         private long _maximumTimes;
+        private int _interval;
+        private long _duration;
         private IntervalUnit _intervalUnit;
-        private readonly int _interval;
-        private readonly DayOfWeek _weekday;
-        private DateTime _nextRunTime;
+        private DayOfWeek _weekday;
+        private DateTime _nextTime;
         private IDisposable _taskDisposer;
-        private TimingAfterOrBeforeExecuteTask _timingMode;
+        private bool _calculateNextTimeAfterExecuted;
         private JobModel _model;
-       
-        public Job(int interval, IFiber fiber)
+
+        public Job(IFiber fiber)
         {
-            _runTimes = 0;
+            _fiber = fiber;
             _maximumTimes = -1;
             _hour = -1;
             _minute = -1;
             _second = -1;
-            _interval = interval;
-            _fiber = fiber;
-            _timingMode = TimingAfterOrBeforeExecuteTask.BeforeExecuteTask;
             _model = JobModel.Every;
-        }
-        
-        public Job(int interval, IntervalUnit intervalUnit, IFiber fiber) : this(interval, fiber)
-        {
-            _intervalUnit = intervalUnit;
-        }
-
-        public Job(DayOfWeek weekday, IFiber fiber) : this(1, IntervalUnit.Weeks, fiber)
-        {
-            _weekday = weekday;
         }
 
         internal Job Model(JobModel model)
@@ -73,60 +55,72 @@ namespace jIAnSoft.Nami.Clockwork
 
         public Job Days()
         {
-            _intervalUnit = IntervalUnit.Days;
+            _intervalUnit = IntervalUnit.Day;
             return this;
         }
 
         public Job Hours()
         {
-            _intervalUnit = IntervalUnit.Hours;
+            _intervalUnit = IntervalUnit.Hour;
             return this;
         }
 
         public Job Minutes()
         {
-            _intervalUnit = IntervalUnit.Minutes;
+            _intervalUnit = IntervalUnit.Minute;
             return this;
         }
 
         public Job Seconds()
         {
-            _intervalUnit = IntervalUnit.Seconds;
+            _intervalUnit = IntervalUnit.Second;
             return this;
         }
 
         public Job Milliseconds()
         {
-            _intervalUnit = IntervalUnit.Milliseconds;
+            _intervalUnit = IntervalUnit.Millisecond;
             return this;
         }
 
         public Job At(int hour, int minute, int second)
         {
-            _hour = Math.Abs(hour);
-            _minute = Math.Abs(minute);
-            _second = Math.Abs(second);
-            if (_intervalUnit != IntervalUnit.Hours)
-            {
-                _hour = _hour % 24;
-            }
-
-            _minute = minute % 60;
-            _second = second % 60;
+            _hour = Math.Abs(hour) % 24;
+            _minute = Math.Abs(minute) % 60;
+            _second = Math.Abs(second) % 60;
             return this;
         }
 
-        // Start timing after the task is executed
+        /// <summary>
+        /// Start timing after the task is executed
+        /// just for delay model、every N second and every N millisecond
+        /// </summary>
+        /// <returns></returns>
         public Job AfterExecuteTask()
         {
-            _timingMode = TimingAfterOrBeforeExecuteTask.AfterExecuteTask;
+            if (_model == JobModel.Delay ||
+                _intervalUnit == IntervalUnit.Second ||
+                _intervalUnit == IntervalUnit.Millisecond)
+            {
+                _calculateNextTimeAfterExecuted = true;
+            }
+
             return this;
         }
 
-        //Start timing before the task is executed
+        /// <summary>
+        /// Start timing before the task is executed
+        /// </summary>
+        /// <returns></returns>
         public Job BeforeExecuteTask()
         {
-            _timingMode = TimingAfterOrBeforeExecuteTask.BeforeExecuteTask;
+            _calculateNextTimeAfterExecuted = false;
+            return this;
+        }
+
+        internal Job Interval(int interval)
+        {
+            _interval = interval;
             return this;
         }
 
@@ -136,191 +130,116 @@ namespace jIAnSoft.Nami.Clockwork
             return this;
         }
 
-        private void SetDelayNextTime()
+        internal Job Week(DayOfWeek weekday)
         {
-            var now = DateTime.Now;
-            switch (_intervalUnit)
-            {
-                case IntervalUnit.Weeks:
-                    _nextRunTime = now.AddDays(_interval * 7);
-                    break;
-                case IntervalUnit.Days:
-                    _nextRunTime = now.AddDays(_interval);
-                    break;
-                case IntervalUnit.Hours:
-                    _nextRunTime = now.AddHours(_interval);
-                    break;
-                case IntervalUnit.Minutes:
-                    _nextRunTime = now.AddMinutes(_interval);
-                    break;
-                case IntervalUnit.Seconds:
-                    _nextRunTime = now.AddSeconds(_interval);
-                    break;
-                case IntervalUnit.Milliseconds:
-                    _nextRunTime = now.AddMilliseconds(_interval);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            _intervalUnit = IntervalUnit.Week;
+            _weekday = weekday;
+            return this;
         }
 
         public IDisposable Do(Action action)
         {
+            long duration = 0;
             _task = action;
-            if (_model == JobModel.Delay)
+            _duration = _interval * (int) _intervalUnit;
+
+            if (_model == JobModel.Delay ||
+                _intervalUnit == IntervalUnit.Second ||
+                _intervalUnit == IntervalUnit.Millisecond)
             {
-                SetDelayNextTime();
+                duration += _duration;
+                _nextTime = DateTime.Now;
             }
             else
             {
                 var now = DateTime.Now;
-                switch (_intervalUnit)
+                switch (CheckAtTime(now)._intervalUnit)
                 {
-                    case IntervalUnit.Weeks:
+                    case IntervalUnit.Week:
                         var i = (7 - (now.DayOfWeek - _weekday)) % 7;
-                        _nextRunTime = new DateTime(now.Year, now.Month, now.Day, _hour, _minute, _second).AddDays(i);
-                        if (_nextRunTime < now)
-                        {
-                            _nextRunTime = _nextRunTime.AddDays(7);
-                        }
-
+                        _nextTime = new DateTime(now.Year, now.Month, now.Day, _hour, _minute, _second).AddDays(i);
                         break;
-                    case IntervalUnit.Days:
-                        if (_second < 0 || _minute < 0 || _hour < 0)
-                        {
-                            _nextRunTime = now.AddDays(1);
-                            _second = _nextRunTime.Second;
-                            _minute = _nextRunTime.Minute;
-                            _hour = _nextRunTime.Hour;
-                        }
-                        else
-                        {
-                            _nextRunTime = new DateTime(now.Year, now.Month, now.Day, _hour, _minute, _second);
-                            if (_interval > 1)
-                            {
-                                _nextRunTime = _nextRunTime.AddDays(_interval - 1);
-                            }
-
-                            if (_nextRunTime < now)
-                            {
-                                _nextRunTime = _nextRunTime.AddDays(_interval);
-                            }
-                        }
-
+                    case IntervalUnit.Day:
+                        _nextTime = new DateTime(now.Year, now.Month, now.Day, _hour, _minute, _second);
                         break;
-                    case IntervalUnit.Hours:
-                        if (_minute < 0)
-                        {
-                            _minute = now.Minute;
-                        }
-
-                        if (_second < 0)
-                        {
-                            _second = now.Second;
-                        }
-
-                        _nextRunTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, _minute, _second)
-                            .AddHours(_interval - 1);
-
-                        if (_nextRunTime < now)
-                        {
-                            _nextRunTime = _nextRunTime.AddHours(_interval);
-                        }
-
+                    case IntervalUnit.Hour:
+                        _nextTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, _minute, _second);
                         break;
-                    case IntervalUnit.Minutes:
-                        if (_second < 0)
-                        {
-                            _second = now.Second;
-                        }
-
-                        _nextRunTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, _second)
-                            .AddMinutes(_interval - 1);
-
-                        if (_second < now.Second)
-                        {
-                            _nextRunTime = _nextRunTime.AddMinutes(_interval);
-                        }
-
+                    case IntervalUnit.Minute:
+                        _nextTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, _second);
                         break;
-                    case IntervalUnit.Seconds:
-                        _nextRunTime = now.AddSeconds(_interval);
-                        break;
-                    case IntervalUnit.Milliseconds:
-                        _nextRunTime = now.AddMilliseconds(_interval);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                }
+
+                if (_interval > 1)
+                {
+                    duration += _duration;
+                }
+
+                if (_nextTime < now)
+                {
+                    duration += _duration;
                 }
             }
 
-            var firstInMs = (_nextRunTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
+            _nextTime = _nextTime.AddMilliseconds(duration);
+            var firstInMs = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
             _taskDisposer = _fiber.Schedule(CanDo, firstInMs);
             return this;
         }
 
         private void CanDo()
         {
-            if (DateTime.Now.Ticks >= _nextRunTime.Ticks)
+            var adjustTime = _nextTime.Ticks - DateTime.Now.Ticks;
+            if (adjustTime > 0)
             {
-                if (_timingMode == TimingAfterOrBeforeExecuteTask.BeforeExecuteTask)
-                {
-                    _fiber.Enqueue(_task);
-                }
-                else
-                {
-                    var s = DateTime.Now.Ticks;
-                    _task();
-                    var f = DateTime.Now.Ticks - s;
-                    _nextRunTime = _nextRunTime.AddTicks(f);
-                }
-
-                _runTimes++;
-
-                if (_maximumTimes > 0 && _runTimes >= _maximumTimes)
-                {
-                    return;
-                }
-
-                if (JobModel.Delay == _model)
-                {
-                    SetDelayNextTime();
-                }
-                else
-                {
-                    switch (_intervalUnit)
-                    {
-                        case IntervalUnit.Weeks:
-                            _nextRunTime = _nextRunTime.AddDays(7);
-                            break;
-                        case IntervalUnit.Days:
-                            _nextRunTime = _nextRunTime.AddDays(_interval);
-                            break;
-                        case IntervalUnit.Hours:
-                            _nextRunTime = _nextRunTime.AddHours(_interval);
-                            break;
-                        case IntervalUnit.Minutes:
-                            _nextRunTime = _nextRunTime.AddMinutes(_interval);
-                            break;
-                        case IntervalUnit.Seconds:
-                            _nextRunTime = _nextRunTime.AddSeconds(_interval);
-                            break;
-                        case IntervalUnit.Milliseconds:
-                            _nextRunTime = _nextRunTime.AddMilliseconds(_interval);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
+                _taskDisposer = _fiber.Schedule(CanDo, adjustTime);
+                return;
+            }
+            
+            if (_calculateNextTimeAfterExecuted)
+            {
+                var s = DateTime.Now.Ticks;
+                _task();
+                var f = DateTime.Now.Ticks - s;
+                _nextTime = _nextTime.AddTicks(f);
+            }
+            else
+            {
+                _fiber.Enqueue(_task);
             }
 
-            var adjustTime = (_nextRunTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
+            if (_maximumTimes > 0 && _maximumTimes <= ++_runTimes)
+            {
+                return;
+            }
+
+            _nextTime = _nextTime.AddMilliseconds(_duration);
+            adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
             _taskDisposer = _fiber.Schedule(CanDo, adjustTime);
         }
 
         public void Dispose()
         {
             _taskDisposer?.Dispose();
+        }
+
+        private Job CheckAtTime(DateTime now)
+        {
+            if (_hour < 0)
+            {
+                _hour = now.Hour;
+            }
+
+            if (_minute < 0)
+            {
+                _minute = now.Minute;
+            }
+
+            if (_second < 0)
+            {
+                _second = now.Second;
+            }
+            return this;
         }
     }
 }
