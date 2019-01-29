@@ -26,15 +26,14 @@ namespace jIAnSoft.Nami.Clockwork
         private int _hour;
         private int _minute;
         private int _second;
-        private long _runTimes;
         private long _maximumTimes;
         private int _interval;
         private long _duration;
+        private bool _calculateNextTimeAfterExecuted;
         private IntervalUnit _intervalUnit;
         private DayOfWeek _weekday;
         private DateTime _nextTime;
         private IDisposable _taskDisposer;
-        private bool _calculateNextTimeAfterExecuted;
         private JobModel _model;
 
         public Job(IFiber fiber)
@@ -190,31 +189,30 @@ namespace jIAnSoft.Nami.Clockwork
         private void CanDo()
         {
             var adjustTime = _nextTime.Ticks - DateTime.Now.Ticks;
-            if (adjustTime > 0)
+            if (adjustTime <= 0)
             {
-                _taskDisposer = _fiber.Schedule(CanDo, adjustTime);
-                return;
-            }
-            
-            if (_calculateNextTimeAfterExecuted)
-            {
-                var s = DateTime.Now.Ticks;
-                _task();
-                var f = DateTime.Now.Ticks - s;
-                _nextTime = _nextTime.AddTicks(f);
-            }
-            else
-            {
-                _fiber.Enqueue(_task);
+                if (_calculateNextTimeAfterExecuted)
+                {
+                    var s = DateTime.Now.Ticks;
+                    _task();
+                    var f = DateTime.Now.Ticks - s;
+                    _nextTime = _nextTime.AddTicks(f);
+                }
+                else
+                {
+                    _fiber.Enqueue(_task);
+                }
+
+                _maximumTimes += -1;
+                if (_maximumTimes == 0)
+                {
+                    return;
+                }
+
+                _nextTime = _nextTime.AddMilliseconds(_duration);
+                adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
             }
 
-            if (_maximumTimes > 0 && _maximumTimes <= ++_runTimes)
-            {
-                return;
-            }
-
-            _nextTime = _nextTime.AddMilliseconds(_duration);
-            adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
             _taskDisposer = _fiber.Schedule(CanDo, adjustTime);
         }
 
@@ -239,6 +237,7 @@ namespace jIAnSoft.Nami.Clockwork
             {
                 _second = now.Second;
             }
+
             return this;
         }
     }
