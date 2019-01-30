@@ -1,5 +1,4 @@
 ﻿using System;
-using jIAnSoft.Nami.Fibers;
 
 namespace jIAnSoft.Nami.Clockwork
 {
@@ -21,7 +20,6 @@ namespace jIAnSoft.Nami.Clockwork
 
     public class Job : IDisposable
     {
-        private readonly IFiber _fiber;
         private Action _task;
         private int _hour;
         private int _minute;
@@ -36,9 +34,8 @@ namespace jIAnSoft.Nami.Clockwork
         private IDisposable _taskDisposer;
         private JobModel _model;
 
-        public Job(IFiber fiber)
+        public Job()
         {
-            _fiber = fiber;
             _maximumTimes = -1;
             _hour = -1;
             _minute = -1;
@@ -168,12 +165,7 @@ namespace jIAnSoft.Nami.Clockwork
                         _nextTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, _second);
                         break;
                 }
-
-                if (_interval > 1)
-                {
-                    duration += _duration;
-                }
-
+                
                 if (_nextTime < now)
                 {
                     duration += _duration;
@@ -182,7 +174,7 @@ namespace jIAnSoft.Nami.Clockwork
 
             _nextTime = _nextTime.AddMilliseconds(duration);
             var firstInMs = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
-            _taskDisposer = _fiber.Schedule(CanDo, firstInMs);
+            _taskDisposer = Nami.Instance.Fiber.Schedule(CanDo, firstInMs);
             return this;
         }
 
@@ -200,7 +192,7 @@ namespace jIAnSoft.Nami.Clockwork
                 }
                 else
                 {
-                    _fiber.Enqueue(_task);
+                    Nami.Instance.Fiber.Enqueue(_task);
                 }
 
                 _maximumTimes += -1;
@@ -213,7 +205,7 @@ namespace jIAnSoft.Nami.Clockwork
                 adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
             }
 
-            _taskDisposer = _fiber.Schedule(CanDo, adjustTime);
+            _taskDisposer = Nami.Instance.Fiber.Schedule(CanDo, adjustTime);
         }
 
         public void Dispose()
