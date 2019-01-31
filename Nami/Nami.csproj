@@ -16,9 +16,9 @@
     <PackageProjectUrl>https://github.com/jiansoft/nami</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jiansoft/nami.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>19.1.27</Version>
-    <AssemblyVersion>19.1.29</AssemblyVersion>
-    <FileVersion>19.1.29</FileVersion>
+    <Version>19.1.31</Version>
+    <AssemblyVersion>19.1.31</AssemblyVersion>
+    <FileVersion>19.1.31</FileVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net451|AnyCPU'">
@@ -68,9 +68,6 @@
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />-->
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="NUnit" Version="3.11.0" />
   </ItemGroup>
   <!--
   <ItemGroup>

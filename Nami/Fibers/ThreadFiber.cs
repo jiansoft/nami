@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace jIAnSoft.Nami.Fibers
 {
@@ -26,7 +27,6 @@ namespace jIAnSoft.Nami.Fibers
         public ThreadFiber()
             : this(new DefaultQueue())
         {
-
         }
 
         /// <inheritdoc />
@@ -57,11 +57,13 @@ namespace jIAnSoft.Nami.Fibers
         private bool ExecuteNextBatch()
         {
             var toExecute = _queue.DequeueAll();
-            if (toExecute == null)
+            if (toExecute == null || !toExecute.Any())
             {
                 return false;
             }
-            _executor.Execute(toExecute);
+
+            var copy = toExecute.ToArray();
+            _executor.Execute(copy);
             return true;
         }
 

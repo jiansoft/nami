@@ -17,6 +17,6 @@ namespace jIAnSoft.Nami.Core
         /// Remove timer
         /// </summary>
         /// <param name="timer"></param>
-        void Remove(IDisposable timer);
+        bool Remove(IDisposable timer);
     }
 }

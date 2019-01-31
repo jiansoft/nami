@@ -29,9 +29,9 @@ namespace jIAnSoft.Nami.Core
         {
             if (_intervalInMs == Timeout.Infinite || _cancelled)
             {
-                _scheduler.Remove(this);
                 var timer = Interlocked.Exchange(ref _timer, null);
                 timer?.Dispose();
+                _scheduler.Remove(this);
             }
             _scheduler.Enqueue(ExecuteOnFiberThread);
         }
@@ -39,7 +39,9 @@ namespace jIAnSoft.Nami.Core
         private void ExecuteOnFiberThread()
         {
             if (_cancelled)
+            {
                 return;
+            }
             _action();
         }
 

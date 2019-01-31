@@ -15,7 +15,7 @@ namespace jIAnSoft.Nami.Fibers
         private readonly Subscriptions _subscriptions = new Subscriptions();
         private readonly object _lock = new object();
         private readonly IExecutionContext _executionContext;
-        private readonly Scheduler _timer;
+        private readonly IScheduler _scheduler;
         private readonly IExecutor _executor;
         private readonly List<Action> _queue = new List<Action>();
 
@@ -26,7 +26,7 @@ namespace jIAnSoft.Nami.Fibers
         /// </summary>
         public GuiFiber(IExecutionContext executionContext, IExecutor executor)
         {
-            _timer = new Scheduler(this);
+            _scheduler = new Scheduler(this);
             _executionContext = executionContext;
             _executor = executor;
         }
@@ -97,7 +97,7 @@ namespace jIAnSoft.Nami.Fibers
         /// </summary>
         public IDisposable Schedule(Action action, long firstInMs)
         {
-            return _timer.Schedule(action, firstInMs);
+            return _scheduler.Schedule(action, firstInMs);
         }
 
         /// <inheritdoc />
@@ -106,7 +106,7 @@ namespace jIAnSoft.Nami.Fibers
         /// </summary>
         public IDisposable ScheduleOnInterval(Action action, long firstInMs, long regularInMs)
         {
-            return _timer.ScheduleOnInterval(action, firstInMs, regularInMs);
+            return _scheduler.ScheduleOnInterval(action, firstInMs, regularInMs);
         }
 
         /// <inheritdoc />
@@ -146,7 +146,7 @@ namespace jIAnSoft.Nami.Fibers
         /// </summary>
         public void Stop()
         {
-            _timer.Dispose();
+            _scheduler.Dispose();
             _started = ExecutionState.Stopped;
             _subscriptions.Dispose();
         }

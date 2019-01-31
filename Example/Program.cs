@@ -14,8 +14,18 @@ namespace Example
         {
             var now = DateTime.Now;
             Log.Info($"Start at {now:HH:mm:ss}");
-
-            Nami.Every(450).Milliseconds().Times(2).Do(() => { PrintData("Every(450).Milliseconds", DateTime.Now); });
+            Nami.Delay(20000).Do(() =>
+            {
+                foreach (var s in new[] {1, 2, 3})
+                {
+                    var ss = s;
+                    Nami.Delay(2000).Do(() =>
+                    {
+                        Loop(ss, 0);
+                    });
+                }
+            });
+            Nami.Every(450).Milliseconds().Times(2).Do(() => { PrintData("Every 450 Milliseconds", DateTime.Now); });
             Nami.Every(1).Seconds().Times(3).Do(() => { PrintData("Every 1 Seconds Times 3", DateTime.Now); });
             Nami.Every(10).Minutes().Do(() => { PrintData("Every 10 Minutes", DateTime.Now); });
             Nami.Every(10).Minutes().AfterExecuteTask().Do(() =>
@@ -33,17 +43,24 @@ namespace Example
             now = now.AddSeconds(17);
             Nami.EveryMonday().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Monday", DateTime.Now); });
             Nami.EveryTuesday().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Tuesday", DateTime.Now); });
-            Nami.EveryWednesday().At(now.Hour, now.Minute, now.Second).Do(() =>{PrintData("Wednesday", DateTime.Now);});
-            Nami.EveryThursday().At(now.Hour, now.Minute, now.Second).Do(() =>{PrintData("Thursday", DateTime.Now);});
+            Nami.EveryWednesday().At(now.Hour, now.Minute, now.Second)
+                .Do(() => { PrintData("Wednesday", DateTime.Now); });
+            Nami.EveryThursday().At(now.Hour, now.Minute, now.Second)
+                .Do(() => { PrintData("Thursday", DateTime.Now); });
             Nami.EveryFriday().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Friday", DateTime.Now); });
-            Nami.EverySaturday().At(now.Hour, now.Minute, now.Second).Do(() =>{PrintData("Saturday", DateTime.Now);});
+            Nami.EverySaturday().At(now.Hour, now.Minute, now.Second)
+                .Do(() => { PrintData("Saturday", DateTime.Now); });
             Nami.EverySunday().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Sunday", DateTime.Now); });
 
             now = now.AddSeconds(1);
-            Nami.Every(1).Hours().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Every 1 Hours", DateTime.Now); });
+            Nami.Every(1).Hours().At(now.Hour, now.Minute, now.Second).Do(() =>
+            {
+                PrintData("Every 1 Hours", DateTime.Now);
+            });
 
             now = now.AddSeconds(1);
-            Nami.Every(1).Days().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Every 1 Days", DateTime.Now); });
+            Nami.Every(1).Days().At(now.Hour, now.Minute, now.Second)
+                .Do(() => { PrintData("Every 1 Days", DateTime.Now); });
 
             now = now.AddSeconds(1);
             Nami.Everyday().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Everyday", DateTime.Now); });
@@ -178,9 +195,12 @@ namespace Example
             Thread.Sleep(sleep * 1000);
         }
 
-        private static void RunSleepCron(string s, int second)
+        private static void Loop(int index, int count)
         {
-            Log.Info($"{s} every {second} second now {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}");
+            Log.Info($"{index} loop {count} now {DateTime.Now:HH:mm:ss.fff}");
+           
+            var ss = index;
+            Nami.Delay(2000).Do(() => { Loop(ss, ++count); });
         }
     }
 }

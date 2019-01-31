@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace jIAnSoft.Nami.Core
 {
@@ -27,8 +26,8 @@ namespace jIAnSoft.Nami.Core
                 return;
             }
 
-            var copy = toExecute.ToArray();
-            foreach (var action in copy)
+            //var copy = toExecute.ToArray();
+            foreach (var action in toExecute)
             {
                 Execute(action);
             }
@@ -41,12 +40,13 @@ namespace jIAnSoft.Nami.Core
         /// <param name="toExecute"></param>
         public void Execute(Action toExecute)
         {
-            if (!IsEnabled)
+            if (!IsEnabled )
             {
+               // Log.Info("IsEnabled is {IsEnabled");
                 return;
             }
 
-            toExecute();
+            toExecute?.Invoke();
         }
         
         /// <summary>

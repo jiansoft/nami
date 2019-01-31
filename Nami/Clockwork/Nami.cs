@@ -6,7 +6,7 @@ namespace jIAnSoft.Nami.Clockwork
     public class Nami
     {
         private static Nami _instance;
-        internal readonly IFiber Fiber;
+        internal readonly PoolFiber Fiber;
 
         internal static Nami Instance => _instance ?? (_instance = new Nami());
 

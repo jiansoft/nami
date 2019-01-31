@@ -90,6 +90,8 @@ namespace jIAnSoft.Nami.Clockwork
         /// <summary>
         /// Start timing after the task is executed
         /// just for delay model、every N second and every N millisecond
+        /// If you want some job every N minute、hour or day do once and want to calculate next execution time by after the job executed.
+        /// Please use interval unit that Seconds or Milliseconds
         /// </summary>
         /// <returns></returns>
         public Job AfterExecuteTask()
@@ -165,7 +167,7 @@ namespace jIAnSoft.Nami.Clockwork
                         _nextTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, _second);
                         break;
                 }
-                
+
                 if (_nextTime < now)
                 {
                     duration += _duration;
@@ -180,7 +182,8 @@ namespace jIAnSoft.Nami.Clockwork
 
         private void CanDo()
         {
-            var adjustTime = _nextTime.Ticks - DateTime.Now.Ticks;
+            var adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
+
             if (adjustTime <= 0)
             {
                 if (_calculateNextTimeAfterExecuted)
@@ -204,7 +207,7 @@ namespace jIAnSoft.Nami.Clockwork
                 _nextTime = _nextTime.AddMilliseconds(_duration);
                 adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
             }
-
+            
             _taskDisposer = Nami.Instance.Fiber.Schedule(CanDo, adjustTime);
         }
 

@@ -1,11 +1,9 @@
 using jIAnSoft.Nami.Core;
 using System;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace jIAnSoft.Nami.Fibers
 {
-
-
     /// <inheritdoc />
     /// <summary>
     /// Fiber that uses a thread pool for execution.
@@ -39,7 +37,7 @@ namespace jIAnSoft.Nami.Fibers
         /// <param name="action"></param>
         public void Enqueue(Action action)
         {
-            if (_state == ExecutionState.Stopped)
+            if (_state != ExecutionState.Running)
             {
                 return;
             }
@@ -47,11 +45,7 @@ namespace jIAnSoft.Nami.Fibers
             _queue.Enqueue(action);
             lock (_lock)
             {
-                if (_state == ExecutionState.Created)
-                {
-                    return;
-                }
-
+            
                 if (_flushPending)
                 {
                     return;
@@ -91,16 +85,15 @@ namespace jIAnSoft.Nami.Fibers
         private void Flush()
         {
             var toExecute = _queue.DequeueAll();
-            if (toExecute == null)
+            
+            if (toExecute == null || !toExecute.Any())
             {
                 _flushPending = false;
                 return;
             }
-            
-            foreach (var ac in toExecute)
-            {
-                _thread.Queue(ac);
-            }
+
+            var copy = toExecute.ToArray();
+            _thread.Queue(() => { _executor.Execute(copy); });
             
             lock (_lock)
             {
@@ -116,7 +109,6 @@ namespace jIAnSoft.Nami.Fibers
             }
         }
 
-
         /// <inheritdoc />
         /// <summary>
         /// <see cref="M:jIAnSoft.Nami.Core.IScheduler.Schedule(System.Action,System.Int64)" />
@@ -125,7 +117,7 @@ namespace jIAnSoft.Nami.Fibers
         /// <param name="firstInMs"></param>
         /// <returns></returns>
         public IDisposable Schedule(Action action, long firstInMs)
-        {
+        {        
             return _scheduler.Schedule(action, firstInMs);
         }
 
