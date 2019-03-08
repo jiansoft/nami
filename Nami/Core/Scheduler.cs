@@ -48,18 +48,15 @@ namespace jIAnSoft.Nami.Core
         /// </summary>
         public IDisposable ScheduleOnInterval(Action action, long firstInMs, long regularInMs)
         {
-           
-                var pending = new TimerAction(this, action, firstInMs, regularInMs);
-               // Log.Info($"ScheduleOnInterval firstInMs:{firstInMs} regularInMs:{regularInMs}");
-                if (!_running)
-                {
-                    return pending;
-                }
-
-                _pending.Add(pending);
-                pending.Schedule();
-
+            var pending = new TimerAction(this, action, firstInMs, regularInMs);
+            if (!_running)
+            {
                 return pending;
+            }
+
+            _pending.Add(pending);
+            pending.Schedule();
+            return pending;
         }
 
         /// <inheritdoc />

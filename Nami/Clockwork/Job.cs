@@ -137,25 +137,26 @@ namespace jIAnSoft.Nami.Clockwork
 
         public IDisposable Do(Action action)
         {
-            long duration = 0;
             _task = action;
             _duration = _interval * (int) _intervalUnit;
-
+            var now = DateTime.Now;
             if (_model == JobModel.Delay ||
                 _intervalUnit == IntervalUnit.Second ||
                 _intervalUnit == IntervalUnit.Millisecond)
             {
-                duration += _duration;
-                _nextTime = DateTime.Now;
+                _nextTime = now;
             }
             else
             {
-                var now = DateTime.Now;
                 switch (CheckAtTime(now)._intervalUnit)
                 {
                     case IntervalUnit.Week:
+                        _nextTime = new DateTime(now.Year, now.Month, now.Day, _hour, _minute, _second);
                         var i = (7 - (now.DayOfWeek - _weekday)) % 7;
-                        _nextTime = new DateTime(now.Year, now.Month, now.Day, _hour, _minute, _second).AddDays(i);
+                        if (i > 0)
+                        {
+                            _nextTime.AddDays(i);
+                        }
                         break;
                     case IntervalUnit.Day:
                         _nextTime = new DateTime(now.Year, now.Month, now.Day, _hour, _minute, _second);
@@ -167,16 +168,15 @@ namespace jIAnSoft.Nami.Clockwork
                         _nextTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, _second);
                         break;
                 }
-
-                if (_nextTime < now)
-                {
-                    duration += _duration;
-                }
             }
 
-            _nextTime = _nextTime.AddMilliseconds(duration);
+            if (_nextTime <= now)
+            {
+                _nextTime = _nextTime.AddMilliseconds(_duration);
+            }
+            
             var firstInMs = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
-            _taskDisposer = Nami.Instance.Fiber.Schedule(CanDo, firstInMs);
+            Schedule(firstInMs);
             return this;
         }
 
@@ -208,12 +208,12 @@ namespace jIAnSoft.Nami.Clockwork
                 adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
             }
             
-            _taskDisposer = Nami.Instance.Fiber.Schedule(CanDo, adjustTime);
+            Schedule(adjustTime);
         }
-
-        public void Dispose()
+        
+        private void Schedule(long firstInMs)
         {
-            _taskDisposer?.Dispose();
+            _taskDisposer = Nami.Instance.Fiber.Schedule(CanDo, firstInMs);
         }
 
         private Job CheckAtTime(DateTime now)
@@ -234,6 +234,11 @@ namespace jIAnSoft.Nami.Clockwork
             }
 
             return this;
+        }
+        
+        public void Dispose()
+        {
+            _taskDisposer?.Dispose();
         }
     }
 }
