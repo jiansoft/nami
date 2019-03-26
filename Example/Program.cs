@@ -14,7 +14,7 @@ namespace Example
         {
             var now = DateTime.Now;
             Log.Info($"Start at {now:HH:mm:ss}");
-            
+
             /*Nami.Delay(20000).Do(() =>
             {
                 foreach (var s in new[] {1, 2, 3})
@@ -65,6 +65,15 @@ namespace Example
 
             now = now.AddSeconds(1);
             Nami.Everyday().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Everyday", DateTime.Now); });
+
+            now = now.AddSeconds(1);
+            var fromTime = new Time(now.Hour, now.Minute, now.Second, now.Millisecond);
+            now = now.AddSeconds(6);
+            var toTime = new Time(now.Hour, now.Minute, now.Second, now.Millisecond);
+            Nami.Every(3).Seconds().Between(fromTime, toTime).Do(() =>
+            {
+                PrintData($"Every Between {fromTime} to {toTime}", DateTime.Now);
+            });
 
             Console.ReadKey();
 
@@ -152,7 +161,6 @@ namespace Example
             Nami.Every(10).Seconds().BeforeExecuteTask().Do(() => { RunSleepCron("Be", 10, 0); });
 
 
-
             Nami.Every(100).Seconds().Do(() =>
             {
                 thread.Enqueue(() => { PrintData(" Nami.Every(1).Seconds().Do  ", DateTime.Now); });
@@ -199,7 +207,7 @@ namespace Example
         private static void Loop(int index, int count)
         {
             Log.Info($"{index} loop {count} now {DateTime.Now:HH:mm:ss.fff}");
-           
+
             var ss = index;
             Nami.Delay(2000).Do(() => { Loop(ss, ++count); });
         }

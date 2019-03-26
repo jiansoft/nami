@@ -20,19 +20,21 @@ namespace jIAnSoft.Nami.Clockwork
 
     public class Job : IDisposable
     {
-        private Action _task;
-        private int _hour;
-        private int _minute;
-        private int _second;
-        private long _maximumTimes;
-        private int _interval;
-        private long _duration;
         private bool _calculateNextTimeAfterExecuted;
+        private long _duration;
+        private DateTime _fromTime;
+        private int _hour;
+        private int _interval;
         private IntervalUnit _intervalUnit;
-        private DayOfWeek _weekday;
-        private DateTime _nextTime;
-        private IDisposable _taskDisposer;
+        private long _maximumTimes;
+        private int _minute;
         private JobModel _model;
+        private DateTime _nextTime;
+        private int _second;
+        private Action _task;
+        private IDisposable _taskDisposer;
+        private DateTime _toTime;
+        private DayOfWeek _weekday;
 
         public Job()
         {
@@ -41,6 +43,11 @@ namespace jIAnSoft.Nami.Clockwork
             _minute = -1;
             _second = -1;
             _model = JobModel.Every;
+        }
+
+        public void Dispose()
+        {
+            _taskDisposer?.Dispose();
         }
 
         internal Job Model(JobModel model)
@@ -135,14 +142,26 @@ namespace jIAnSoft.Nami.Clockwork
             return this;
         }
 
+        public Job Between(Time from, Time to)
+        {
+            if (_model == JobModel.Delay || from.IsZero() || to.IsZero())
+            {
+                return this;
+            }
+
+            var now = DateTime.Now;
+            _fromTime = new DateTime(now.Year, now.Month, now.Day, from.Hour, from.Minute, from.Second,
+                from.Millisecond);
+            _toTime = new DateTime(now.Year, now.Month, now.Day, to.Hour, to.Minute, to.Second, to.Millisecond);
+            return this;
+        }
+
         public IDisposable Do(Action action)
         {
             _task = action;
             _duration = _interval * (int) _intervalUnit;
             var now = DateTime.Now;
-            if (_model == JobModel.Delay ||
-                _intervalUnit == IntervalUnit.Second ||
-                _intervalUnit == IntervalUnit.Millisecond)
+            if (_model == JobModel.Delay)
             {
                 _nextTime = now;
             }
@@ -155,8 +174,9 @@ namespace jIAnSoft.Nami.Clockwork
                         var i = (7 - (now.DayOfWeek - _weekday)) % 7;
                         if (i > 0)
                         {
-                            _nextTime.AddDays(i);
+                            _nextTime = _nextTime.AddDays(i);
                         }
+
                         break;
                     case IntervalUnit.Day:
                         _nextTime = new DateTime(now.Year, now.Month, now.Day, _hour, _minute, _second);
@@ -167,6 +187,23 @@ namespace jIAnSoft.Nami.Clockwork
                     case IntervalUnit.Minute:
                         _nextTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, _second);
                         break;
+                    //case IntervalUnit.Second:
+                    //case IntervalUnit.Millisecond:
+                    default:
+                        _nextTime = now;
+                        if (_fromTime.Ticks != 0 && _nextTime < _fromTime)
+                        {
+                            _nextTime = _fromTime;
+                        }
+
+                        if (_toTime.Ticks != 0 && _nextTime > _toTime)
+                        {
+                            _fromTime = _fromTime.AddMilliseconds(_duration);
+                            _toTime = _toTime.AddMilliseconds(_duration);
+                            _nextTime = _fromTime;
+                        }
+
+                        break;
                 }
             }
 
@@ -174,7 +211,7 @@ namespace jIAnSoft.Nami.Clockwork
             {
                 _nextTime = _nextTime.AddMilliseconds(_duration);
             }
-            
+
             var firstInMs = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
             Schedule(firstInMs);
             return this;
@@ -184,7 +221,7 @@ namespace jIAnSoft.Nami.Clockwork
         {
             var adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
 
-            if (adjustTime <= 0)
+            if (adjustTime < 0)
             {
                 if (_calculateNextTimeAfterExecuted)
                 {
@@ -205,12 +242,19 @@ namespace jIAnSoft.Nami.Clockwork
                 }
 
                 _nextTime = _nextTime.AddMilliseconds(_duration);
+                if (_toTime.Ticks != 0 && _nextTime >= _toTime)
+                {
+                    _fromTime = _fromTime.AddDays(1);
+                    _toTime = _toTime.AddDays(1);
+                    _nextTime = _fromTime;
+                }
+
                 adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
             }
-            
+
             Schedule(adjustTime);
         }
-        
+
         private void Schedule(long firstInMs)
         {
             _taskDisposer = Nami.Instance.Fiber.Schedule(CanDo, firstInMs);
@@ -234,11 +278,6 @@ namespace jIAnSoft.Nami.Clockwork
             }
 
             return this;
-        }
-        
-        public void Dispose()
-        {
-            _taskDisposer?.Dispose();
         }
     }
 }

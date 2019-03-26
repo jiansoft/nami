@@ -11,11 +11,14 @@ namespace jIAnSoft.Nami.Core
     public class BoundedQueue : IQueue
     {
         private readonly object _lock = new object();
-        private readonly IExecutor _executor;
-
-        private bool _running = true;
 
         private List<Action> _actions = new List<Action>();
+
+
+        private bool _disposed;
+        //private readonly IExecutor _executor;
+
+        private bool _running = true;
         private List<Action> _toPass = new List<Action>();
 
         ///<summary>
@@ -47,13 +50,14 @@ namespace jIAnSoft.Nami.Core
             {
                 return;
             }
-            
+
             lock (_lock)
             {
                 if (!SpaceAvailable(1))
                 {
                     return;
                 }
+
                 _actions.Add(action);
                 Monitor.PulseAll(_lock);
             }
@@ -93,6 +97,29 @@ namespace jIAnSoft.Nami.Core
             }
         }
 
+        public List<Action> DequeueAll()
+        {
+            lock (_lock)
+            {
+                if (!ReadyToDequeue())
+                {
+                    return null;
+                }
+
+                Lists.Swap(ref _actions, ref _toPass);
+                _actions.Clear();
+
+                Monitor.PulseAll(_lock);
+                return _toPass;
+            }
+        }
+
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
         private bool SpaceAvailable(int toAdd)
         {
             if (!_running)
@@ -122,23 +149,6 @@ namespace jIAnSoft.Nami.Core
             return true;
         }
 
-        public List<Action> DequeueAll()
-        {
-            lock (_lock)
-            {
-                if (!ReadyToDequeue())
-                {
-                    return null;
-                }
-                
-                Lists.Swap(ref _actions, ref _toPass);
-                _actions.Clear();
-
-                Monitor.PulseAll(_lock);
-                return _toPass;
-            }
-        }
-
         private bool ReadyToDequeue()
         {
             while (_actions.Count == 0 && _running)
@@ -148,9 +158,6 @@ namespace jIAnSoft.Nami.Core
 
             return _running;
         }
-
-        
-        private bool _disposed;
 
         private void Dispose(bool disposing)
         {
@@ -163,12 +170,6 @@ namespace jIAnSoft.Nami.Core
             Stop();
             _actions?.Clear();
             _toPass?.Clear();
-        }
-
-        
-        public void Dispose()
-        {
-            Dispose(true);
         }
     }
 }
