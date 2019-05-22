@@ -67,12 +67,12 @@ namespace Example
             Nami.Everyday().At(now.Hour, now.Minute, now.Second).Do(() => { PrintData("Everyday", DateTime.Now); });
 
             now = now.AddSeconds(1);
-            var fromTime = new Time(now.Hour, now.Minute, now.Second, now.Millisecond);
+            var fromTime = new BetweenTime(now.Hour, now.Minute, now.Second, now.Millisecond);
             now = now.AddSeconds(6);
-            var toTime = new Time(now.Hour, now.Minute, now.Second, now.Millisecond);
-            Nami.Every(3).Seconds().Between(fromTime, toTime).Do(() =>
+            var toTime = new BetweenTime(now.Hour, now.Minute, now.Second, now.Millisecond);
+            Nami.Every(1).Seconds().Between(fromTime, toTime).Do(() =>
             {
-                PrintData($"Every Between {fromTime} to {toTime}", DateTime.Now);
+                PrintData($"Every 1 Seconds Between {fromTime} to {toTime}", DateTime.Now);
             });
 
             Console.ReadKey();

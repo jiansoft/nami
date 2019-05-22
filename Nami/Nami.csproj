@@ -16,11 +16,11 @@
     <PackageProjectUrl>https://github.com/jiansoft/nami</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jiansoft/nami.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>19.1.31</Version>
-    <AssemblyVersion>19.1.31</AssemblyVersion>
-    <FileVersion>19.1.31</FileVersion>
+    <Version>19.5.22</Version>
+    <AssemblyVersion>19.5.22</AssemblyVersion>
+    <FileVersion>19.5.22</FileVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageVersion>19.3.26</PackageVersion>
+    <PackageVersion>19.5.22</PackageVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net451|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>

@@ -142,17 +142,16 @@ namespace jIAnSoft.Nami.Clockwork
             return this;
         }
 
-        public Job Between(Time from, Time to)
+        public Job Between(BetweenTime f, BetweenTime t)
         {
-            if (_model == JobModel.Delay || from.IsZero() || to.IsZero())
+            if (_model == JobModel.Delay || f.IsZero() || t.IsZero())
             {
                 return this;
             }
 
             var now = DateTime.Now;
-            _fromTime = new DateTime(now.Year, now.Month, now.Day, from.Hour, from.Minute, from.Second,
-                from.Millisecond);
-            _toTime = new DateTime(now.Year, now.Month, now.Day, to.Hour, to.Minute, to.Second, to.Millisecond);
+            _fromTime = new DateTime(now.Year, now.Month, now.Day, f.Hour, f.Minute, f.Second, f.Millisecond);
+            _toTime = new DateTime(now.Year, now.Month, now.Day, t.Hour, t.Minute, t.Second, t.Millisecond);
             return this;
         }
 
@@ -167,7 +166,22 @@ namespace jIAnSoft.Nami.Clockwork
             }
             else
             {
-                switch (CheckAtTime(now)._intervalUnit)
+                if (_hour < 0)
+                {
+                    _hour = now.Hour;
+                }
+
+                if (_minute < 0)
+                {
+                    _minute = now.Minute;
+                }
+
+                if (_second < 0)
+                {
+                    _second = now.Second;
+                }
+                
+                switch (_intervalUnit)
                 {
                     case IntervalUnit.Week:
                         _nextTime = new DateTime(now.Year, now.Month, now.Day, _hour, _minute, _second);
@@ -194,15 +208,13 @@ namespace jIAnSoft.Nami.Clockwork
                         if (_fromTime.Ticks != 0 && _nextTime < _fromTime)
                         {
                             _nextTime = _fromTime;
+                            if (_toTime.Ticks != 0 && _nextTime > _toTime)
+                            {
+                                _fromTime = _fromTime.AddMilliseconds(_duration);
+                                _toTime = _toTime.AddMilliseconds(_duration);
+                                _nextTime = _fromTime;
+                            }
                         }
-
-                        if (_toTime.Ticks != 0 && _nextTime > _toTime)
-                        {
-                            _fromTime = _fromTime.AddMilliseconds(_duration);
-                            _toTime = _toTime.AddMilliseconds(_duration);
-                            _nextTime = _fromTime;
-                        }
-
                         break;
                 }
             }
@@ -211,28 +223,32 @@ namespace jIAnSoft.Nami.Clockwork
             {
                 _nextTime = _nextTime.AddMilliseconds(_duration);
             }
-
-            var firstInMs = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
-            Schedule(firstInMs);
+           
+            Schedule();
             return this;
         }
 
-        private void CanDo()
+        private void Run()
         {
-            var adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
+            var adjustTime = RemainTime();
 
-            if (adjustTime < 0)
+            if (adjustTime <= 0)
             {
-                if (_calculateNextTimeAfterExecuted)
+                if (_toTime.Ticks != 0 && _toTime >= DateTime.Now ||
+                    _fromTime.Ticks == 0 || 
+                    _toTime.Ticks == 0)
                 {
-                    var s = DateTime.Now.Ticks;
-                    _task();
-                    var f = DateTime.Now.Ticks - s;
-                    _nextTime = _nextTime.AddTicks(f);
-                }
-                else
-                {
-                    Nami.Instance.Fiber.Enqueue(_task);
+                    if (_calculateNextTimeAfterExecuted)
+                    {
+                        var s = DateTime.Now.Ticks;
+                        _task();
+                        var f = DateTime.Now.Ticks - s;
+                        _nextTime = _nextTime.AddTicks(f);
+                    }
+                    else
+                    {
+                        Nami.Instance.Fiber.Enqueue(_task);
+                    }
                 }
 
                 _maximumTimes += -1;
@@ -248,36 +264,21 @@ namespace jIAnSoft.Nami.Clockwork
                     _toTime = _toTime.AddDays(1);
                     _nextTime = _fromTime;
                 }
-
-                adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
             }
 
-            Schedule(adjustTime);
+            Schedule();
         }
 
-        private void Schedule(long firstInMs)
+        private long RemainTime()
         {
-            _taskDisposer = Nami.Instance.Fiber.Schedule(CanDo, firstInMs);
+            var adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
+            return adjustTime;
         }
-
-        private Job CheckAtTime(DateTime now)
+        
+        private void Schedule()
         {
-            if (_hour < 0)
-            {
-                _hour = now.Hour;
-            }
-
-            if (_minute < 0)
-            {
-                _minute = now.Minute;
-            }
-
-            if (_second < 0)
-            {
-                _second = now.Second;
-            }
-
-            return this;
+            var diff = RemainTime();
+            _taskDisposer = Nami.Instance.Fiber.Schedule(Run, diff);
         }
     }
 }
