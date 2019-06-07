@@ -271,8 +271,9 @@ namespace jIAnSoft.Nami.Clockwork
 
         private long RemainTime()
         {
-            var adjustTime = (_nextTime.Ticks - DateTime.Now.Ticks) / TimeSpan.TicksPerMillisecond;
-            return adjustTime;
+            var diff = _nextTime.Ticks - DateTime.Now.Ticks;
+            var adjustTime = Math.Ceiling(diff / (double)TimeSpan.TicksPerMillisecond);
+            return Convert.ToInt64(adjustTime);
         }
         
         private void Schedule()
