@@ -26,7 +26,7 @@ namespace jIAnSoft.Nami.Core
             }
         }
 
-        public List<Action> DequeueAll()
+        public Action[] DequeueAll()
         {
             lock (_lock)
             {
@@ -37,7 +37,8 @@ namespace jIAnSoft.Nami.Core
 
                 Lists.Swap(ref _actions, ref _toPass);
                 _actions.Clear();
-                return _toPass;
+                var toPass = _toPass.ToArray();
+                return toPass;
             }
         }
 

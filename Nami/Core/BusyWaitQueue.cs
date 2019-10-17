@@ -85,7 +85,7 @@ namespace jIAnSoft.Nami.Core
             }
         }
 
-        public List<Action> DequeueAll()
+        public Action[] DequeueAll()
         {
             var spins = 0;
             var stopwatch = Stopwatch.StartNew();
@@ -106,7 +106,7 @@ namespace jIAnSoft.Nami.Core
                     var toReturn = TryDequeue();
                     if (toReturn != null)
                     {
-                        return toReturn;
+                        return toReturn.ToArray();
                     }
 
                     if (TryBlockingWait(stopwatch, ref spins))
@@ -119,7 +119,7 @@ namespace jIAnSoft.Nami.Core
                         toReturn = TryDequeue();
                         if (toReturn != null)
                         {
-                            return toReturn;
+                            return toReturn.ToArray();
                         }
                     }
                 }

@@ -45,7 +45,6 @@ namespace jIAnSoft.Nami.Fibers
             _queue.Enqueue(action);
             lock (_lock)
             {
-            
                 if (_flushPending)
                 {
                     return;
@@ -91,9 +90,8 @@ namespace jIAnSoft.Nami.Fibers
                 _flushPending = false;
                 return;
             }
-
-            var copy = toExecute.ToArray();
-            _thread.Queue(() => { _executor.Execute(copy); });
+           
+            _thread.Queue(() => { _executor.Execute(toExecute); });
             
             lock (_lock)
             {

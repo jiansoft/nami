@@ -18,7 +18,7 @@ namespace jIAnSoft.Nami.Core
         ///<summary>
         /// Dequeue action for execution context to process.
         ///</summary>
-        List<Action> DequeueAll();
+        Action[] DequeueAll();
 
         int Count();
 

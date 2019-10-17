@@ -62,8 +62,8 @@ namespace jIAnSoft.Nami.Fibers
                 return false;
             }
 
-            var copy = toExecute.ToArray();
-            _executor.Execute(copy);
+            //var copy = toExecute.ToArray();
+            _executor.Execute(toExecute);
             return true;
         }
 

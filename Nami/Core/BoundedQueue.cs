@@ -97,7 +97,7 @@ namespace jIAnSoft.Nami.Core
             }
         }
 
-        public List<Action> DequeueAll()
+        public Action[] DequeueAll()
         {
             lock (_lock)
             {
@@ -110,10 +110,10 @@ namespace jIAnSoft.Nami.Core
                 _actions.Clear();
 
                 Monitor.PulseAll(_lock);
-                return _toPass;
+                var toPass = _toPass.ToArray();
+                return toPass;
             }
         }
-
 
         public void Dispose()
         {

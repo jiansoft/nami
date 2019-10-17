@@ -23,7 +23,8 @@ namespace jIAnSoft.Nami.Core
             {
                 return;
             }
-           Task.Run(action);
+
+            Task.Run(action);
         }
 
         public void Start()
