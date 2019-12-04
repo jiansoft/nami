@@ -20,9 +20,9 @@ namespace Tests.Core
             TestContext.WriteLine($"q.Count():{q.Count()}");
             Assert.AreEqual(1, q.Count());
             var r = q.DequeueAll();
-            TestContext.WriteLine($"q.Count():{q.Count()} r.Count():{r.Count}");
+            TestContext.WriteLine($"q.Count():{q.Count()} r.Count():{r.Length}");
             Assert.AreEqual(0,  q.Count());
-            Assert.AreEqual(1, r.Count);
+            Assert.AreEqual(1, r.Length);
         }
         
         [Test]
@@ -44,8 +44,8 @@ namespace Tests.Core
             q.Enqueue(() => { });
             q.Enqueue(() => { });
             var r = q.DequeueAll();
-            TestContext.WriteLine($"q.Count():{q.Count()} r.Count():{r.Count}");
-            Assert.AreEqual(3, r.Count);
+            TestContext.WriteLine($"q.Count():{q.Count()} r.Count():{r.Length}");
+            Assert.AreEqual(3, r.Length);
         }
     }
 }
