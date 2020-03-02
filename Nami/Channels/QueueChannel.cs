@@ -37,7 +37,7 @@ namespace jIAnSoft.Nami.Channels
                     return true;
                 }
             }
-            msg = default(T);
+            msg = default;
             return false;
         }
 

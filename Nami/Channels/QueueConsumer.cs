@@ -5,6 +5,7 @@ namespace jIAnSoft.Nami.Channels
 {
     internal class QueueConsumer<T> : IDisposable
     {
+        private readonly object _mutex = new object();
         private bool _flushPending;
         private readonly IExecutionContext _target;
         private readonly Action<T> _callback;
@@ -17,9 +18,9 @@ namespace jIAnSoft.Nami.Channels
             _channel = channel;
         }
 
-        public void Signal()
+        private void Signal()
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_flushPending)
                 {
@@ -34,15 +35,14 @@ namespace jIAnSoft.Nami.Channels
         {
             try
             {
-                T msg;
-                if (_channel.Pop(out msg))
+                if (_channel.Pop(out var msg))
                 {
                     _callback(msg);
                 }
             }
             finally
             {
-                lock (this)
+                lock (_mutex)
                 {
                     if (_channel.Count == 0)
                     {
