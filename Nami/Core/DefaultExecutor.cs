@@ -27,7 +27,10 @@ namespace jIAnSoft.Nami.Core
                 return;
             }
 
-            Parallel.ForEach(toExecute, Execute);
+            foreach (var action in toExecute)
+            {
+                Execute(action);
+            }
         }
 
         /// <inheritdoc />
