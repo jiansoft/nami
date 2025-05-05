@@ -1,0 +1,5 @@
+﻿<Solution>
+  <Project Path="Example\Example.csproj" />
+  <Project Path="Nami\Nami.csproj" />
+  <Project Path="Tests\Tests.csproj" Type="Classic C#" />
+</Solution>
