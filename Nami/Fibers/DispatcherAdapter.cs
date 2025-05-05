@@ -1,4 +1,4 @@
-﻿#if (!NETSTANDARD1_3 && !NETSTANDARD2_0)
+﻿#if (NET452 || NET8_0_WINDOWS)
 using System;
 using System.Windows.Threading;
 

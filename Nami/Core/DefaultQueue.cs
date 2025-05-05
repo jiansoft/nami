@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace jIAnSoft.Nami.Core
@@ -8,17 +7,19 @@ namespace jIAnSoft.Nami.Core
     public class DefaultQueue : IQueue
     {
         private readonly object _lock = new object();
-        private bool _running = true;
+        private volatile bool _running = true;
         private List<Action> _actions = new List<Action>();
         private List<Action> _toPass = new List<Action>();
-
+        private int _disposed;
+        
         public void Enqueue(Action action)
         {
-            if (!_running)
+
+            if (!_running || _disposed == 1)
             {
                 return;
             }
-
+            
             lock (_lock)
             {
                 _actions.Add(action);
@@ -30,7 +31,7 @@ namespace jIAnSoft.Nami.Core
         {
             lock (_lock)
             {
-                if (!ReadyToDequeue() || _disposed)
+                if (_disposed == 1 || !ReadyToDequeue())
                 {
                     return null;
                 }
@@ -44,7 +45,7 @@ namespace jIAnSoft.Nami.Core
 
         private bool ReadyToDequeue()
         {
-            while (!_actions.Any() && _running)
+            while (_actions.Count == 0 && _running)
             {
                 Monitor.Wait(_lock);
             }
@@ -77,24 +78,21 @@ namespace jIAnSoft.Nami.Core
                 Monitor.PulseAll(_lock);
             }
         }
-
-        private bool _disposed;
-
-        private void Dispose(bool disposing)
+        
+        public void Dispose()
         {
-            if (!disposing || _disposed)
+            if (Interlocked.Exchange(ref _disposed, 1) == 1)
             {
                 return;
             }
-            _disposed = true;
+            
             Stop();
-            _actions?.Clear();
-            _toPass?.Clear();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
+            lock (_lock)
+            {
+                _actions.Clear();
+                _toPass.Clear();
+                Monitor.PulseAll(_lock);
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace jIAnSoft.Nami.Core
@@ -10,10 +11,12 @@ namespace jIAnSoft.Nami.Core
     /// </summary>
     public class DefaultExecutor : IExecutor
     {
-        public DefaultExecutor()
-        {
-            IsEnabled = true;
-        }
+        /// <summary>
+        /// When disabled, actions will be ignored by executor. The executor is typically disabled at shutdown
+        /// to prevent any pending actions from being executed. 
+        /// </summary>
+        private volatile bool _isEnabled = true;
+        private int _disposed; // 0: false, 1: true
 
         /// <inheritdoc />
         /// <summary>
@@ -22,7 +25,12 @@ namespace jIAnSoft.Nami.Core
         /// <param name="toExecute"></param>
         public void Execute(IEnumerable<Action> toExecute)
         {
-            if (!IsEnabled)
+            if (!_isEnabled)
+            {
+                return;
+            }
+
+            if (toExecute == null)
             {
                 return;
             }
@@ -40,36 +48,33 @@ namespace jIAnSoft.Nami.Core
         /// <param name="toExecute"></param>
         public void Execute(Action toExecute)
         {
-            if (!IsEnabled)
+            if (!_isEnabled)
             {
                 return;
             }
            
             toExecute?.Invoke();
         }
-        
-        /// <summary>
-        /// When disabled, actions will be ignored by executor. The executor is typically disabled at shutdown
-        /// to prevent any pending actions from being executed. 
-        /// </summary>
-        private bool IsEnabled { get; set; }
 
-        private bool _disposed;
-
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || _disposed)
+            if (Interlocked.Exchange(ref _disposed, 1) == 1)
             {
                 return;
             }
 
-            IsEnabled = false;
-            _disposed = true;
+            if (!disposing)
+            {
+                return;
+            }
+            
+            _isEnabled = false;
         }
 
         public void Dispose()
         {
             Dispose(true);
         }
+
     }
 }

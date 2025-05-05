@@ -4,10 +4,9 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D17FD978-19CA-4946-B284-260DBDAC37D6}</ProjectGuid>
-    <OutputType>Exe</OutputType>
     <RootNamespace>Example</RootNamespace>
     <AssemblyName>Example</AssemblyName>
-    <TargetFrameworks>net451;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net452</TargetFrameworks>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -42,8 +41,8 @@
     <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
    <ItemGroup>
-     <PackageReference Include="NLog" Version="4.5.11" />
-     <PackageReference Include="NLog.Config" Version="4.5.11" />
+     <PackageReference Include="NLog" Version="5.4.0" />
+     <PackageReference Include="NLog.Config" Version="4.7.15" />
    </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nami\Nami.csproj" />

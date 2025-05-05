@@ -36,27 +36,51 @@ namespace jIAnSoft.Nami.Core
     public class DefaultThread : IWorkThread
     {
         private Thread _thread;
+        private CancellationTokenSource _cts = new CancellationTokenSource();
 
-        /// <inheritdoc />
-        /// <summary>
-        /// Run action.
-        /// </summary>
-        /// <param name="action"></param>
         public void Queue(Action action)
         {
-            if (null != _thread && _thread.IsAlive)
+            // 先取消之前的任務（如果存在）
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            
+            // 取消前一個執行緒
+            if (_thread != null && _thread.IsAlive)
             {
-                _thread.Abort();
-                _thread = null;
+                _thread.Join(100); // 等待 100ms 讓執行緒自然結束
+                if (_thread.IsAlive)
+                {
+                    try { _thread.Interrupt(); }
+                    catch
+                    {
+                        // ignored
+                    }
+                }
             }
 
-            _thread = new Thread(() => { action(); })
+            _cts = new CancellationTokenSource();
+
+            _thread = new Thread(() =>
+            {
+                try
+                {
+                    action();
+                }
+                catch (ThreadInterruptedException)
+                {
+                    // ignored
+                }
+                catch (OperationCanceledException)
+                {
+                    // ignored
+                }
+            })
             {
                 Name = $"ThreadFiber-{DateTime.UtcNow.Ticks}",
                 IsBackground = true,
                 Priority = ThreadPriority.Normal
             };
-
         }
 
         public void Start()

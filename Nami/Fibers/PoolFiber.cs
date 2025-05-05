@@ -1,6 +1,6 @@
 using jIAnSoft.Nami.Core;
 using System;
-using System.Linq;
+using System.Threading;
 
 namespace jIAnSoft.Nami.Fibers
 {
@@ -16,9 +16,11 @@ namespace jIAnSoft.Nami.Fibers
         private readonly IQueue _queue;
         private readonly IScheduler _scheduler;
         private readonly IExecutor _executor;
-        private ExecutionState _state = ExecutionState.Created;
-        private bool _flushPending;
+        private volatile ExecutionState _state = ExecutionState.Created;
+        private volatile bool _flushPending;
+        private int _disposed; // 0=false, 1=true
 
+        
         /// <summary>
         /// Construct new instance.
         /// </summary>
@@ -37,12 +39,13 @@ namespace jIAnSoft.Nami.Fibers
         /// <param name="action"></param>
         public void Enqueue(Action action)
         {
-            if (_state != ExecutionState.Running)
+            if (_state != ExecutionState.Running || _disposed == 1)
             {
                 return;
             }
 
             _queue.Enqueue(action);
+            
             lock (_lock)
             {
                 if (_flushPending)
@@ -85,7 +88,7 @@ namespace jIAnSoft.Nami.Fibers
         {
             var toExecute = _queue.DequeueAll();
             
-            if (toExecute == null || !toExecute.Any())
+            if (toExecute == null || toExecute.Length == 0)
             {
                 _flushPending = false;
                 return;
@@ -97,7 +100,7 @@ namespace jIAnSoft.Nami.Fibers
             {
                 if (_queue.Count() > 0)
                 {
-                    // don't monopolize thread.
+                    // Don't monopolize thread, continue flushing if needed
                     _thread.Queue(Flush);
                 }
                 else
@@ -138,10 +141,11 @@ namespace jIAnSoft.Nami.Fibers
         /// </summary>
         public void Start()
         {
-            if (_state == ExecutionState.Running)
+            if (_disposed == 1 || _state == ExecutionState.Running)
             {
-               return;
+                return;
             }
+
             _state = ExecutionState.Running;
             _thread.Start();
             //flush any pending events in queue
@@ -153,34 +157,41 @@ namespace jIAnSoft.Nami.Fibers
         /// </summary>
         public void Stop()
         {
+            if (_disposed == 1)
+            {
+                return;
+            }
+
             _scheduler.Dispose();
             _state = ExecutionState.Stopped;
             _subscriptions.Dispose();
             _queue.Stop();
-          
         }
-
-        private bool _disposed;
-
+        
         private void Dispose(bool disposing)
         {
-            if (!disposing || _disposed)
+            if (Interlocked.Exchange(ref _disposed, 1) == 1)
             {
                 return;
             }
+
+            if (!disposing)
+            {
+                return;
+            }
+            
             Stop();
             _queue.Dispose();
             _executor.Dispose();
-            _disposed = true;
         }
 
-        /// <inheritdoc />
         /// <summary>
-        /// Stops the fiber.
+        /// Stops the fiber and releases resources.
         /// </summary>
         public void Dispose()
         {
             Dispose(true);
         }
+
     }
 }

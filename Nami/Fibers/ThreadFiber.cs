@@ -1,11 +1,9 @@
+using jIAnSoft.Nami.Core;
 using System;
-using System.Linq;
+using System.Threading;
 
 namespace jIAnSoft.Nami.Fibers
 {
-    using Core;
-
-    /// <inheritdoc />
     /// <summary>
     /// Fiber implementation backed by a dedicated thread.
     /// <see cref="T:jIAnSoft.Nami.Fibers.IFiber" />
@@ -19,8 +17,8 @@ namespace jIAnSoft.Nami.Fibers
         private readonly IScheduler _scheduler;
         private readonly IExecutor _executor;
         private ExecutionState _state = ExecutionState.Created;
-
-        /// <inheritdoc />
+        private int _disposed; // 0=false, 1=true
+        
         /// <summary>
         /// Create a thread fiber with the default queue.
         /// </summary>
@@ -29,7 +27,6 @@ namespace jIAnSoft.Nami.Fibers
         {
         }
 
-        /// <inheritdoc />
         /// <summary>
         /// Creates a thread fiber with a specified queue.
         /// </summary>
@@ -42,14 +39,14 @@ namespace jIAnSoft.Nami.Fibers
             _thread = new DefaultThread();
             _thread.Queue(RunOnThread);
         }
-        
+
         private void RunOnThread()
         {
             while (ExecuteNextBatch())
             {
             }
         }
-        
+
         /// <summary>
         /// Remove all actions and execute.
         /// </summary>
@@ -57,12 +54,11 @@ namespace jIAnSoft.Nami.Fibers
         private bool ExecuteNextBatch()
         {
             var toExecute = _queue.DequeueAll();
-            if (toExecute == null || !toExecute.Any())
+            if (toExecute == null || toExecute.Length == 0)
             {
                 return false;
             }
-
-            //var copy = toExecute.ToArray();
+            
             _executor.Execute(toExecute);
             return true;
         }
@@ -74,10 +70,11 @@ namespace jIAnSoft.Nami.Fibers
         /// <param name="action"></param>
         public void Enqueue(Action action)
         {
-            if (_state == ExecutionState.Stopped)
+            if (_state == ExecutionState.Stopped || _disposed == 1)
             {
                 return;
             }
+
             _queue.Enqueue(action);
         }
 
@@ -137,16 +134,22 @@ namespace jIAnSoft.Nami.Fibers
         /// </summary>
         public void Start()
         {
-            if (_state == ExecutionState.Running)
+            if (_disposed == 1 || _state == ExecutionState.Running)
             {
                 return;
             }
+
             _state = ExecutionState.Running;
             _thread.Start();
         }
 
         public void Stop()
         {
+            if (_disposed == 1)
+            {
+                return;
+            }
+
             lock (_lock)
             {
                 _state = ExecutionState.Stopped;
@@ -156,11 +159,15 @@ namespace jIAnSoft.Nami.Fibers
             }
         }
 
-        private bool _disposed;
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || _disposed)
+            if (Interlocked.Exchange(ref _disposed, 1) == 1)
+            {
+                return;
+            }
+
+            if (!disposing)
             {
                 return;
             }
@@ -168,16 +175,15 @@ namespace jIAnSoft.Nami.Fibers
             Stop();
             _queue.Dispose();
             _executor.Dispose();
-            _disposed = true;
         }
 
-        /// <inheritdoc />
         /// <summary>
-        /// Stops the thread.
+        /// Stops the thread and releases resources.
         /// </summary>
         public void Dispose()
         {
             Dispose(true);
         }
+
     }
 }
