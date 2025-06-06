@@ -5,14 +5,14 @@
     <Title>Nami</Title>
     <Description>Nami is a high performance C# threading library. This project fork from retlang.</Description>
     <Authors>Eddie</Authors>
-    <TargetFrameworks>net8.0;net452</TargetFrameworks>
+    <TargetFrameworks>net8.0;net6.0</TargetFrameworks>
     <RootNamespace>jIAnSoft.Nami</RootNamespace>
     <AssemblyName>Nami</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Company>jIAnSoft</Company>
     <Product>jIAnSoft.Nami</Product>
     <Copyright>Copyright © jIAnSoft 2017</Copyright>
-    <PackageLicenseUrl>https://github.com/jiansoft/nami/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/jiansoft/nami</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jiansoft/nami.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -20,7 +20,7 @@
     <AssemblyVersion>19.10.17</AssemblyVersion>
     <FileVersion>19.10.17</FileVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageVersion>19.10.17</PackageVersion>
+    <PackageVersion>25.06.06</PackageVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net451|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
