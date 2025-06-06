@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using jIAnSoft.Nami.Core;
 using System.Threading.Tasks;
 
 namespace jIAnSoft.Nami.Fibers;
@@ -7,18 +6,14 @@ namespace jIAnSoft.Nami.Fibers;
 /// <summary>
 /// Async version of IFiber interface
 /// </summary>
-public interface IAsyncFiber : IDisposable
+public interface IAsyncFiber : IAsyncExecutionContext, IAsyncScheduler
 {
-    Task<bool> EnqueueAsync(Func<Task> action, CancellationToken cancellationToken = default);
+    Task StartAsync();
+    Task StopAsync();
+    
+    /*Task<bool> EnqueueAsync(Func<Task> action, CancellationToken cancellationToken = default);
     void RegisterSubscription(IDisposable toAdd);
     bool DeregisterSubscription(IDisposable toRemove);
     int NumSubscriptions { get; }
-    Task<int> GetQueueCountAsync();
-    IDisposable Schedule(Func<Task> action, long firstInMs);
-    IDisposable ScheduleOnInterval(Func<Task> action, long firstInMs, long regularInMs);
-    Task StartAsync();
-    void Start(); // For backward compatibility
-    Task StopAsync();
-    void Stop(); // For backward compatibility
-    Task DisposeAsync();
+    Task<int> GetQueueCountAsync();*/
 }

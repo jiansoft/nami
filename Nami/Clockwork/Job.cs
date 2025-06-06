@@ -19,7 +19,7 @@ public enum IntervalUnit
     Week = 7 * Day
 }
 
-public class Job : IDisposable
+public class Job : IAsyncDisposable
 {
     private bool _calculateNextTimeAfterExecuted;
     private long _duration;
@@ -33,7 +33,7 @@ public class Job : IDisposable
     private DateTime _nextTime;
     private int _second;
     private Func<Task> _task;
-    private IDisposable _taskDisposer;
+    private IAsyncDisposable _taskDisposer;
     private DateTime _toTime;
     private DayOfWeek _weekday;
     private volatile bool _disposed;
@@ -47,15 +47,7 @@ public class Job : IDisposable
         _model = JobModel.Every;
     }
 
-    public void Dispose()
-    {
-        if (_disposed) return;
-
-        _disposed = true;
-        _taskDisposer?.Dispose();
-        _task = null; // 釋放對委派的引用
-    }
-
+    
     internal Job Model(JobModel model)
     {
         _model = model;
@@ -212,13 +204,13 @@ public class Job : IDisposable
     }
 
     // 支援非同步 Func<Task> 的 Do 方法
-    public IDisposable Do(Func<Task> action)
+    public async Task<IAsyncDisposable> DoAsync(Func<Task> action)
     {
         _task = action;
-        return DoInternal();
+        return await DoInternal();
     }
 
-    private Job DoInternal()
+    private async Task<Job> DoInternal()
     {
         _duration = _interval * (int)_intervalUnit;
         var now = DateTime.Now;
@@ -287,7 +279,8 @@ public class Job : IDisposable
             _nextTime = _nextTime.AddMilliseconds(_duration);
         }
 
-        Schedule();
+        await ScheduleAsync();
+        
         return this;
     }
 
@@ -295,65 +288,58 @@ public class Job : IDisposable
     {
         if (_disposed) return;
 
-        try
+
+        var adjustTime = RemainTime();
+
+        if (adjustTime <= 0)
         {
-            var adjustTime = RemainTime();
+            var shouldExecute = _toTime.Ticks != 0 && _toTime >= DateTime.Now ||
+                                _fromTime.Ticks == 0 ||
+                                _toTime.Ticks == 0;
 
-            if (adjustTime <= 0)
+            if (shouldExecute)
             {
-                var shouldExecute = _toTime.Ticks != 0 && _toTime >= DateTime.Now ||
-                                    _fromTime.Ticks == 0 ||
-                                    _toTime.Ticks == 0;
-
-                if (shouldExecute)
+                if (_calculateNextTimeAfterExecuted)
                 {
-                    if (_calculateNextTimeAfterExecuted)
+                    var startTime = DateTime.Now;
+                    
+                    try
                     {
-                        var startTime = DateTime.Now;
                         await _task();
-                        var executionTime = DateTime.Now - startTime;
-                        _nextTime = _nextTime.Add(executionTime);
                     }
-                    else
+                    catch (Exception e)
                     {
-                        // 使用 TryEnqueue 避免等待，如果失敗就直接執行
-                        var enqueued = await Nami.Instance.Fiber.EnqueueAsync(_task);
-                        if (!enqueued)
-                        {
-                            // 如果入隊失敗，直接執行
-                            await _task();
-                        }
+                        Console.WriteLine($"Job execution error: {e}");
                     }
+
+                    var executionTime = DateTime.Now - startTime;
+                    _nextTime = _nextTime.Add(executionTime);
                 }
-
-                _maximumTimes--;
-
-                if (_maximumTimes == 0)
+                else
                 {
-                    return; // 達到最大執行次數，停止排程
-                }
-
-                // 計算下次執行時間
-                _nextTime = _nextTime.AddMilliseconds(_duration);
-                if (_toTime.Ticks != 0 && _nextTime >= _toTime)
-                {
-                    _fromTime = _fromTime.AddDays(1);
-                    _toTime = _toTime.AddDays(1);
-                    _nextTime = _fromTime;
+                    await Nami.Instance.Fiber.EnqueueAsync(_task);
                 }
             }
 
-            // 繼續排程下次執行
-            Schedule();
-        }
-        catch (Exception ex)
-        {
-            // 記錄錯誤但不中斷排程
-            Console.WriteLine($"Job execution error: {ex}");
+            _maximumTimes--;
 
-            // 發生錯誤時仍然繼續排程
-            Schedule();
+            if (_maximumTimes == 0)
+            {
+                return; // 達到最大執行次數，停止排程
+            }
+
+            // 計算下次執行時間
+            _nextTime = _nextTime.AddMilliseconds(_duration);
+            if (_toTime.Ticks != 0 && _nextTime >= _toTime)
+            {
+                _fromTime = _fromTime.AddDays(1);
+                _toTime = _toTime.AddDays(1);
+                _nextTime = _fromTime;
+            }
         }
+
+        // 繼續排程下次執行
+        await ScheduleAsync();
     }
 
     private long RemainTime()
@@ -362,12 +348,22 @@ public class Job : IDisposable
         return Math.Max(0, (long)Math.Ceiling(diff));
     }
 
-    private void Schedule()
+    private async Task ScheduleAsync()
     {
         if (_disposed) return;
 
         var delay = RemainTime();
 
-        _taskDisposer = Nami.Instance.Fiber.Schedule(RunAsync, delay);
+        _taskDisposer = await Nami.Instance.Fiber.ScheduleAsync(RunAsync, delay);
+    }
+    
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed) return;
+
+        _disposed = true;
+       await _taskDisposer.DisposeAsync();
+        _task = null; // 釋放對委派的引用
+        GC.SuppressFinalize(this);
     }
 }

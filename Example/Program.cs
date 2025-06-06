@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Example;
 
-internal static class Program
+internal class Program
 {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -15,63 +15,44 @@ internal static class Program
     {
         var now = DateTime.Now;
         Log.Info($"Start at {now:HH:mm:ss}");
-
-        var fiberAsync = new MultiTaskFiber();
-        await fiberAsync.StartAsync();
-        // 非同步加入動作
-        await fiberAsync.EnqueueAsync(async () =>
+        await Nami.RightNow().Times(3).DoAsync(() =>
         {
-            await Task.Delay(10);
-
-            Console.WriteLine("Hello from async fiber!");
+            PrintData("RightNow 3 times", DateTime.Now);
+            return Task.CompletedTask;
         });
-
-        // 同步嘗試加入動作（不等待）
-        await fiberAsync.EnqueueAsync(() => Task.Run(() => Console.WriteLine("Quick action")));
-        
-        // 排程延遲動作（使用 Task.Run 包裝）
-        var scheduledAction = fiberAsync.Schedule(() =>
-                Task.Run(() => Console.WriteLine("Scheduled action")),
-            1000
-        );
-        var scheduledAction1 = fiberAsync.Schedule(async () =>
-            {
-                await Task.Delay(10);
-                Console.WriteLine("Scheduled action");
-            },
-            1000
-        );
-        Nami.Every(500).Milliseconds().Times(2).Do(async () =>
+        await Nami.Every(500).Milliseconds().Times(2).DoAsync(async () =>
         {
             PrintData("Every 500 Milliseconds", DateTime.Now);
             await Task.Delay(1);
         });
-      
-        /*Nami.Delay(20000).Do(() =>
-        {
-            foreach (var s in new[] {1, 2, 3})
-            {
-                var ss = s;
-                Nami.Delay(2000).Do(() =>
-                {
-                    Loop(ss, 0);
-                });
-            }
-        });*/
         Nami.Every(450).Milliseconds().Times(2).Do(() => { PrintData("Every 450 Milliseconds", DateTime.Now); });
         Nami.Every(1).Seconds().Times(3).Do(() => { PrintData("Every 1 Seconds Times 3", DateTime.Now); });
         Nami.Every(10).Minutes().Do(() => { PrintData("Every 10 Minutes", DateTime.Now); });
-        Nami.Every(1).Minutes().AfterExecuteTask().Do(async () =>
+        await Nami.Every(1).Minutes().AfterExecuteTask().DoAsync(async () =>
         {
             PrintData("Every 1 Minutes and AfterExecuteTask(didn't work)", DateTime.Now);
             await Task.Delay(new TimeSpan(100, 0, 0));
             PrintData("await Task.Delay(new TimeSpan(100, 0, 0));", DateTime.Now);
         });
-        Nami.Every(60).Seconds().AfterExecuteTask().Do(async () =>
+        await Nami.Every(60).Seconds().AfterExecuteTask().DoAsync(async () =>
         {
             PrintData("Every 60 Seconds and Delay 4 Minutes", DateTime.Now);
             await Task.Delay(4 * 60 * 1000);
         });
+
+        await Nami.Every(120).Seconds().AfterExecuteTask().DoAsync(async () =>
+        {
+            PrintData("Every 120 Seconds ", DateTime.Now);
+            await Task.Delay(100);
+            throw new Exception("Fake Error 1");
+        });
+        await Nami.Every(120).Seconds().DoAsync(async () =>
+        {
+            PrintData("Every 120 Seconds ", DateTime.Now);
+            await Task.Delay(100);
+            throw new Exception("Fake Error 2");
+        });
+
         Nami.Delay(4000).Times(4).Do(() => { PrintData("Delay 4000 ms Times 4", DateTime.Now); });
 
         now = now.AddSeconds(17).AddMilliseconds(100);
@@ -102,7 +83,8 @@ internal static class Program
         var toTime = new TimeOnly(now.Hour, now.Minute, now.Second, now.Millisecond);
         Nami.Every(1).Seconds().Between(fromTime, toTime).Do(() =>
         {
-            PrintData($"Every 1 Seconds Between {fromTime.ToString("HH:mm:ss")} to {toTime.ToString("HH:mm:ss")}", DateTime.Now);
+            PrintData($"Every 1 Seconds Between {fromTime.ToString("HH:mm:ss")} to {toTime.ToString("HH:mm:ss")}",
+                DateTime.Now);
         });
 
         Console.ReadKey();

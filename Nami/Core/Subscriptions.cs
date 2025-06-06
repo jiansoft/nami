@@ -11,8 +11,8 @@ namespace jIAnSoft.Nami.Core;
 internal class Subscriptions : IDisposable
 {
     private readonly object _lock = new();
-    private List<IDisposable> _items = new();
-
+    private List<IDisposable> _disposables = new();
+    
     /// <summary>
     /// Add Disposable
     /// </summary>
@@ -21,10 +21,10 @@ internal class Subscriptions : IDisposable
     {
         lock (_lock)
         {
-            _items.Add(toAdd);
+            _disposables.Add(toAdd);
         }
     }
-
+    
     /// <summary>
     /// Remove Disposable.
     /// </summary>
@@ -35,28 +35,28 @@ internal class Subscriptions : IDisposable
         bool flag;
         lock (_lock)
         {
-            flag = _items.Remove(toRemove);
+            flag = _disposables.Remove(toRemove);
         }
         return flag;
     }
-
+    
     /// <inheritdoc />
     /// <summary>
     /// Disposes all disposables registered in list.
     /// </summary>
     public void Dispose()
     {
-        foreach (var disposable in Interlocked.Exchange(ref _items, new List<IDisposable>()))
+        foreach (var disposable in Interlocked.Exchange(ref _disposables, new List<IDisposable>()))
         {
             disposable.Dispose();
         }
         lock (_lock)
         {
-            foreach (var victim in _items.ToArray())
+            foreach (var victim in _disposables.ToArray())
             {
                 victim.Dispose();
             }
-            _items.Clear();
+            _disposables.Clear();
         }
     }
 
@@ -70,7 +70,7 @@ internal class Subscriptions : IDisposable
             int count;
             lock (_lock)
             {
-                count = _items.Count;
+                count = _disposables.Count;
             }
             return count;
         }

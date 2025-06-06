@@ -9,7 +9,6 @@ namespace jIAnSoft.Nami.Core;
 /// </summary>
 internal class Scheduler : ISchedulerRegistry, IScheduler
 {
-    private volatile bool _running = true;
     private readonly IExecutionContext _fiber;
     private readonly Subscriptions _pending = new();
 
@@ -34,10 +33,7 @@ internal class Scheduler : ISchedulerRegistry, IScheduler
 
         var pending = new PendingAction(action);
 
-        if (_running)
-        {
-            Enqueue(pending.Execute);
-        }
+        Enqueue(pending.Execute);
 
         return pending;
     }
@@ -49,10 +45,6 @@ internal class Scheduler : ISchedulerRegistry, IScheduler
     public IDisposable ScheduleOnInterval(Action action, long firstInMs, long regularInMs)
     {
         var pending = new TimerAction(this, action, firstInMs, regularInMs);
-        if (!_running)
-        {
-            return pending;
-        }
 
         _pending.Add(pending);
         pending.Schedule();
@@ -87,8 +79,7 @@ internal class Scheduler : ISchedulerRegistry, IScheduler
         {
             return;
         }
-
-        _running = false;
+        
         _pending.Dispose();
         _disposed = true;
     }

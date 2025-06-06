@@ -1,4 +1,3 @@
-using System;
 using jIAnSoft.Nami.Core;
 
 namespace jIAnSoft.Nami.Fibers

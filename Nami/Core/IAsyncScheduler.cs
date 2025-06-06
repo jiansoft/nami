@@ -8,6 +8,6 @@ namespace jIAnSoft.Nami.Core;
 /// </summary>
 public interface IAsyncScheduler : IAsyncDisposable
 {
-    Task<IDisposable> Schedule(Func<Task> action, long firstInMs);
-    Task<IDisposable> ScheduleOnInterval(Func<Task> action, long firstInMs, long regularInMs);
+    Task<IAsyncDisposable> ScheduleAsync(Func<Task> func, long firstInMs);
+    Task<IAsyncDisposable> ScheduleOnIntervalAsync(Func<Task> func, long firstInMs, long regularInMs);
 }

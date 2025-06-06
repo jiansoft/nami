@@ -13,7 +13,7 @@ public class Nami
     private Nami()
     {
         Fiber = new MultiTaskFiber();
-        Fiber.Start();
+        Fiber.StartAsync().GetAwaiter().GetResult();
     }
 
     public static Job RightNow()
