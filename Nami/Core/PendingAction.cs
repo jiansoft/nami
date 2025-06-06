@@ -1,28 +1,27 @@
 using System;
 
-namespace jIAnSoft.Nami.Core
+namespace jIAnSoft.Nami.Core;
+
+internal class PendingAction : IDisposable
 {
-    internal class PendingAction : IDisposable
+    private readonly Action _action;
+    private bool _cancelled;
+
+    public PendingAction(Action action)
     {
-        private readonly Action _action;
-        private bool _cancelled;
+        _action = action;
+    }
 
-        public PendingAction(Action action)
-        {
-            _action = action;
-        }
+    public void Dispose()
+    {
+        _cancelled = true;
+    }
 
-        public void Dispose()
+    public void Execute()
+    {
+        if (!_cancelled)
         {
-            _cancelled = true;
-        }
-
-        public void Execute()
-        {
-            if (!_cancelled)
-            {
-                _action();
-            }
+            _action();
         }
     }
 }

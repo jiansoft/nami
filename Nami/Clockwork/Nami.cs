@@ -1,74 +1,73 @@
 ﻿using System;
 using jIAnSoft.Nami.Fibers;
 
-namespace jIAnSoft.Nami.Clockwork
+namespace jIAnSoft.Nami.Clockwork;
+
+public class Nami
 {
-    public class Nami
+    private static Nami _instance;
+    internal readonly IAsyncFiber Fiber;
+
+    internal static Nami Instance => _instance ??= new Nami();
+
+    private Nami()
     {
-        private static Nami _instance;
-        internal readonly PoolFiber Fiber;
+        Fiber = new MultiTaskFiber();
+        Fiber.StartAsync().GetAwaiter().GetResult();
+    }
 
-        internal static Nami Instance => _instance ?? (_instance = new Nami());
+    public static Job RightNow()
+    {
+        return Delay(0);
+    }
 
-        private Nami()
-        {
-            Fiber = new PoolFiber();
-            Fiber.Start();
-        }
+    public static Job Delay(int interval)
+    {
+        return new Job().Model(JobModel.Delay).Interval(interval).Milliseconds().Times(1);
+    }
 
-        public static Job RightNow()
-        {
-            return Delay(0);
-        }
+    public static Job Every(int interval)
+    {
+        return new Job().Interval(interval);
+    }
 
-        public static Job Delay(int interval)
-        {
-            return new Job().Model(JobModel.Delay).Interval(interval).Milliseconds().Times(1);
-        }
+    public static Job EverySunday()
+    {
+        return new Job().Interval(1).Week(DayOfWeek.Sunday);
+    }
 
-        public static Job Every(int interval)
-        {
-            return new Job().Interval(interval);
-        }
+    public static Job EveryMonday()
+    {
+        return new Job().Interval(1).Week(DayOfWeek.Monday);
+    }
 
-        public static Job EverySunday()
-        {
-            return new Job().Interval(1).Week(DayOfWeek.Sunday);
-        }
+    public static Job EveryTuesday()
+    {
+        return new Job().Interval(1).Week(DayOfWeek.Tuesday);
+    }
 
-        public static Job EveryMonday()
-        {
-            return new Job().Interval(1).Week(DayOfWeek.Monday);
-        }
+    public static Job EveryWednesday()
+    {
+        return new Job().Interval(1).Week(DayOfWeek.Wednesday);
+    }
 
-        public static Job EveryTuesday()
-        {
-            return new Job().Interval(1).Week(DayOfWeek.Tuesday);
-        }
+    public static Job EveryThursday()
+    {
+        return new Job().Interval(1).Week(DayOfWeek.Thursday);
+    }
 
-        public static Job EveryWednesday()
-        {
-            return new Job().Interval(1).Week(DayOfWeek.Wednesday);
-        }
+    public static Job EveryFriday()
+    {
+        return new Job().Interval(1).Week(DayOfWeek.Friday);
+    }
 
-        public static Job EveryThursday()
-        {
-            return new Job().Interval(1).Week(DayOfWeek.Thursday);
-        }
+    public static Job EverySaturday()
+    {
+        return new Job().Interval(1).Week(DayOfWeek.Saturday);
+    }
 
-        public static Job EveryFriday()
-        {
-            return new Job().Interval(1).Week(DayOfWeek.Friday);
-        }
-
-        public static Job EverySaturday()
-        {
-            return new Job().Interval(1).Week(DayOfWeek.Saturday);
-        }
-
-        public static Job Everyday()
-        {
-            return Every(1).Days();
-        }
+    public static Job Everyday()
+    {
+        return Every(1).Days();
     }
 }

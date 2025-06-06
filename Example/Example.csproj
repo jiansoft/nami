@@ -6,10 +6,11 @@
     <ProjectGuid>{D17FD978-19CA-4946-B284-260DBDAC37D6}</ProjectGuid>
     <RootNamespace>Example</RootNamespace>
     <AssemblyName>Example</AssemblyName>
-    <TargetFrameworks>net8.0;net452</TargetFrameworks>
+    <TargetFrameworks>net8.0;net6.0</TargetFrameworks>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -30,13 +31,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net451'">
   
-  </ItemGroup>
-  
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
-  
-  </ItemGroup>
    <ItemGroup>
     <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>

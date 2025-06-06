@@ -10,8 +10,8 @@ namespace jIAnSoft.Nami.Fibers
     /// </summary>
     public class PoolFiber : IFiber
     {
-        private readonly Subscriptions _subscriptions = new Subscriptions();
-        private readonly object _lock = new object();
+        private readonly Subscriptions _subscriptions = new();
+        private readonly object _lock = new();
         private readonly IWorkThread _thread;
         private readonly IQueue _queue;
         private readonly IScheduler _scheduler;

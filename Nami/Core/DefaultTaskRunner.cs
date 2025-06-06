@@ -16,7 +16,7 @@ namespace jIAnSoft.Nami.Core
         /// <param name="action">The action to run.</param>
         public void Queue(Action action)
         {
-            if (_task != null && !_task.IsCompleted)
+            if (_task is { IsCompleted: false })
             {
                 _cts.Cancel();
                 
