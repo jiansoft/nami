@@ -36,7 +36,7 @@ namespace jIAnSoft.Nami.Core
                     return null;
                 }
 
-                Lists.Swap(ref _actions, ref _toPass);
+                (_actions, _toPass) = (_toPass, _actions);
                 _actions.Clear();
                 var toPass = _toPass.ToArray();
                 return toPass;

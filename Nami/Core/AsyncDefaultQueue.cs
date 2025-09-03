@@ -211,5 +211,3 @@ public class AsyncDefaultQueue : IAsyncQueue
         GC.SuppressFinalize(this);
     }
 }
-
-// 對應的介面

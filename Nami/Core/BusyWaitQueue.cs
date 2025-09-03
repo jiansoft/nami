@@ -159,7 +159,7 @@ namespace jIAnSoft.Nami.Core
                 return null;
             }
 
-            Lists.Swap(ref _actions, ref _toPass);
+            (_actions, _toPass) = (_toPass, _actions);
             _actions.Clear();
             return _toPass;
         }
